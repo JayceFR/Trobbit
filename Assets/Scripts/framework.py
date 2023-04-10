@@ -224,10 +224,11 @@ class Map():
         pistol_loc = []
         smg_loc = []
         rocket_loc = []
+        enemy_loc = []
         for row in self.map:
             x = 0 
             for element in row:
-                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r":
+                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e":
                     window.blit(self.tiles[int(element)-1], (x * 32 - scroll[0], y * 32 - scroll[1]))
                 if element == "t":
                     window.blit(self.tree, (x * 32 - scroll[0] - 90, y * 32 - scroll[1] - 150))
@@ -239,11 +240,13 @@ class Map():
                     smg_loc.append((x*32,y*32))
                 if element == "r":
                     rocket_loc.append((x*32, y*32))
-                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r":
+                if element == "e":
+                    enemy_loc.append((x*32,y*32))
+                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e":
                     tile_rects.append(pygame.rect.Rect(x*32,y*32,32,32))
                 x += 1
             y += 1
-        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc
+        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, enemy_loc
 
 
 class Glow():

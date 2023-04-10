@@ -16,6 +16,7 @@ import Assets.Scripts.pistol as pistol
 import Assets.Scripts.smg as smg
 import Assets.Scripts.rocket as rocket
 import Assets.Scripts.sparks as spark
+import Assets.Scripts.enemy as enemy
 pygame.init()
 from pygame.locals import *
 
@@ -178,6 +179,11 @@ smokes = []
 yeagle = pistol.Pistol((35, 45), pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
 #Dictionary Of Items
 item_dict = {"p" : ["Pistol", pistol_logo_img, -2], "s" : ["SMG", smg_logo_img, -2], "r" : ["Rocket", rocket_logo_img, -2]}
+#Enemy
+enemies = []
+enemy_spawn = True
+enemy_angle = 0
+enemy_locs = []
 #Main Game Loop
 while run:
     clock.tick(60)
@@ -194,7 +200,7 @@ while run:
     #Mouse Settings 
     mpos = pygame.mouse.get_pos()
     #Blitting the Map
-    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs = map.blit_map(display, scroll)
+    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, enemy_locs = map.blit_map(display, scroll)
     #Creating Items
     if grass_spawn:
         for loc in grass_loc:
@@ -203,6 +209,10 @@ while run:
                 x_pos += 2.5
                 grasses.append(g.grass([x_pos, loc[1]+14], 2, 18))
         grass_spawn = False
+    if enemy_spawn:
+        for loc in enemy_locs:
+            enemies.append(enemy.Enemy(loc, 32, 32, 0))
+        enemy_spawn = False
     if rocket_spawn:
         for loc in rocket_locs:
             rockets.append(rocket.Rocket(loc, rocketb_img.get_width(), rocketb_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img))
@@ -262,6 +272,12 @@ while run:
                     rockets.pop(position)
         p.draw(display, scroll, 0)
         p.update(time, tile_rects)
+    #Drawing enemies
+    for position, e in sorted(enumerate(enemies), reverse=True):
+        enemy_angle = math.atan2(( (e.get_rect().y - scroll[1]) - (player.get_rect().y - scroll[1])) , ( (e.get_rect().x - scroll[0]) - (player.get_rect().x - scroll[0])))
+        enemy_angle = math.pi - enemy_angle
+        e.move(enemy_angle, time, tile_rects)
+        e.draw(display, scroll)
     #Calculating Scroll
     true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) / 5
     true_scroll[1] += (player.get_rect().y - true_scroll[1] - 162) / 5
