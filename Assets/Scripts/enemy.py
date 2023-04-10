@@ -2,7 +2,7 @@ import random
 import math
 import pygame
 class Enemy():
-    def __init__(self, loc, width, height, shoot_cooldown) -> None:
+    def __init__(self, loc, width, height, speed, shoot_cooldown, gun) -> None:
         self.loc = loc
         self.width = width
         self.height = height
@@ -11,10 +11,12 @@ class Enemy():
         self.shoot_last_update = 0
         self.movement = []
         self.graviy = 9.8
-        self.speed = 5
         self.collision_type = {}
         self.display_x = 0
         self.display_y = 0
+        self.gun = gun
+        self.speed = speed
+        self.bullets = []
     
     def collision_test(self, tiles):
         hitlist = []
@@ -45,15 +47,23 @@ class Enemy():
                 collision_types["top"] = True
         return collision_types
     
-    def move(self, angle, time, tiles):
+    def move(self, angle, time, tiles, scroll):
         self.movement = [0,0]
+        self.bullets = self.gun.update(time, tiles)
+        if self.gun.facing_direction():
+            self.gun.rect.x = self.rect.x + 15
+        else:
+            self.gun.rect.x = self.rect.x - 15
+        self.gun.rect.y = self.rect.y + 10
         if time - self.shoot_last_update > self.shoot_cooldown:
+            self.gun.shoot((self.gun.rect.x - scroll[0], self.gun.rect.y - scroll[1]), self.gun.bullet_img.get_width(), self.gun.bullet_img.get_height(), angle, time)
             self.shoot_last_update = time
         self.movement[0] += math.cos(angle) * self.speed
         self.movement[1] += self.graviy
         self.collision_type = self.collision_checker(tiles)
+        return self.bullets
     
-    def draw(self, display, scroll):
+    def draw(self, display, scroll, angle):
         self.display_x = self.rect.x
         self.display_y = self.rect.y
         self.rect.x -= scroll[0]
@@ -61,6 +71,7 @@ class Enemy():
         pygame.draw.rect(display, (0,0,0), self.rect)
         self.rect.x = self.display_x
         self.rect.y = self.display_y
+        self.gun.draw(display, scroll, angle)
     
     def get_rect(self):
         return self.rect

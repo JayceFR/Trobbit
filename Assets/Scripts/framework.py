@@ -35,7 +35,7 @@ class Player():
         self.recover_cooldown = 500
         self.recover_last_update = 0
         self.dusts = []
-
+        self.health = 100
         self.speed = 5
         self.acceleration = 0.02
         self.deceleration = 0.2

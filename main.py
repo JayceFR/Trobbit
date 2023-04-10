@@ -183,7 +183,9 @@ item_dict = {"p" : ["Pistol", pistol_logo_img, -2], "s" : ["SMG", smg_logo_img, 
 enemies = []
 enemy_spawn = True
 enemy_angle = 0
+enemy_bullets = []
 enemy_locs = []
+enemy_count = 0
 #Main Game Loop
 while run:
     clock.tick(60)
@@ -211,7 +213,7 @@ while run:
         grass_spawn = False
     if enemy_spawn:
         for loc in enemy_locs:
-            enemies.append(enemy.Enemy(loc, 32, 32, 0))
+            enemies.append(enemy.Enemy(loc, 32, 32, random.randint(2,7), random.randint(1000,2000), pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)))
         enemy_spawn = False
     if rocket_spawn:
         for loc in rocket_locs:
@@ -276,8 +278,18 @@ while run:
     for position, e in sorted(enumerate(enemies), reverse=True):
         enemy_angle = math.atan2(( (e.get_rect().y - scroll[1]) - (player.get_rect().y - scroll[1])) , ( (e.get_rect().x - scroll[0]) - (player.get_rect().x - scroll[0])))
         enemy_angle = math.pi - enemy_angle
-        e.move(enemy_angle, time, tile_rects)
-        e.draw(display, scroll)
+        enemy_bullets = e.move(enemy_angle, time, tile_rects, scroll)
+        e.draw(display, scroll, enemy_angle)
+        #Checking for collisions with player
+        for bullet in enemy_bullets:
+            bullet_x = bullet.get_rect().x
+            bullet_y = bullet.get_rect().y
+            bullet.get_rect().x += scroll[0]
+            bullet.get_rect().y += scroll[1]
+            if bullet.get_rect().colliderect(player.get_rect()):
+                player.health -= 10
+            bullet.get_rect().x = bullet_x
+            bullet.get_rect().y = bullet_y
     #Calculating Scroll
     true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) / 5
     true_scroll[1] += (player.get_rect().y - true_scroll[1] - 162) / 5
