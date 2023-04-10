@@ -39,12 +39,19 @@ class Player():
         self.speed = 5
         self.acceleration = 0.02
         self.deceleration = 0.2
+    
+    def draw_health_bar(self, display, health, x, y):
+        ratio = health / 100
+        pygame.draw.rect(display, (255,255,255), (x - 2, y - 2, 204  , 34//2))
+        pygame.draw.rect(display, (255,0,0), (x, y, 200  , 30//2))
+        pygame.draw.rect(display, (255,255,0), (x, y, 200 * ratio , 30//2))
 
     def draw(self, window, scroll):
         self.display_x = self.rect.x
         self.display_y = self.rect.y
         self.rect.x = self.rect.x - scroll[0]
         self.rect.y = self.rect.y - scroll[1]
+        self.draw_health_bar(window, self.health, 0, 0)
         #if self.recover:
         #    window.blit(self.land_img, self.rect)
         if not self.moving_left and  not self.moving_right:

@@ -17,6 +17,7 @@ class Enemy():
         self.gun = gun
         self.speed = speed
         self.bullets = []
+        self.health = 100
     
     def collision_test(self, tiles):
         hitlist = []
@@ -46,6 +47,14 @@ class Enemy():
                 self.rect.top = tile.bottom
                 collision_types["top"] = True
         return collision_types
+
+    def draw_health_bar(self, display, health, x, y):
+        x -= 25
+        y -= 10
+        ratio = health / 100
+        pygame.draw.rect(display, (120,220,255), (x - 2, y - 2, 80  , 17//2))
+        pygame.draw.rect(display, (255,0,0), (x, y, 76  , 15//2))
+        pygame.draw.rect(display, (120,75,75), (x, y, 76 * ratio , 15//2))
     
     def move(self, angle, time, tiles, scroll):
         self.movement = [0,0]
@@ -68,6 +77,7 @@ class Enemy():
         self.display_y = self.rect.y
         self.rect.x -= scroll[0]
         self.rect.y -= scroll[1]
+        self.draw_health_bar(display, self.health, self.rect.x, self.rect.y)
         pygame.draw.rect(display, (0,0,0), self.rect)
         self.rect.x = self.display_x
         self.rect.y = self.display_y
@@ -75,3 +85,6 @@ class Enemy():
     
     def get_rect(self):
         return self.rect
+
+    def destroy(self):
+        del self.bullets

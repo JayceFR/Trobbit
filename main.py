@@ -1,8 +1,7 @@
-#TODO -> Weapons and Inventory for the player
-#           1 -> katana
-#           2 -> gun
-#TODO -> Health Bar For Player
-#TODO -> Make enemies spawn 
+#TODO -> Mkae explosion for rocket launcher
+#TODO -> Add Med Kit and chicken
+#TODO -> Good Level Design
+#TODO -> Make enemies a bit weak
 
 import pygame 
 import time as t
@@ -301,12 +300,35 @@ while run:
                 player.health -= 10
                 for x in range(30):
                     if bullet.get_gun() == "r":
-                        sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
+                        sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,103,20 ), 2, 1))
                     else:
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
                 bullet.alive = False
             bullet.get_rect().x = bullet_x
             bullet.get_rect().y = bullet_y
+        for bullet in bullets:
+            bullet_x = bullet.get_rect().x
+            bullet_y = bullet.get_rect().y
+            bullet.get_rect().x += scroll[0]
+            bullet.get_rect().y += scroll[1]
+            if bullet.get_rect().colliderect(e.get_rect()):
+                if bullet.get_gun() == "r":
+                    e.health -= 70
+                if bullet.get_gun() == "p":
+                    e.health -= 30
+                if bullet.get_gun() == "s":
+                    e.health -= 10
+                for x in range(30):
+                    if bullet.get_gun() == "r":
+                        sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,103,20 ), 2, 1))
+                    else:
+                        sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
+                bullet.alive = False
+            bullet.get_rect().x = bullet_x
+            bullet.get_rect().y = bullet_y
+        if e.health <= 0:
+            e.destroy()
+            enemies.pop(position)
     #Calculating Scroll
     true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) / 5
     true_scroll[1] += (player.get_rect().y - true_scroll[1] - 162) / 5
