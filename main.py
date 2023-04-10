@@ -68,7 +68,7 @@ screen_w = 1000
 screen_h = 600
 window = pygame.display.set_mode((screen_w,screen_h))
 display = pygame.Surface((screen_w//2, screen_h//2))
-pygame.display.set_caption("YUIOP")
+pygame.display.set_caption("TROBBIT")
 #Game Attributes
 run = True
 clock = pygame.time.Clock()
@@ -84,7 +84,7 @@ player_idle_img = pygame.image.load("./Assets/Sprites/player_idle.png").convert_
 player_run_img = pygame.image.load("./Assets/Sprites/player_run.png").convert_alpha()
 player_land_img_copy = pygame.image.load("./Assets/Sprites/player_land.png").convert_alpha()
 player_land_img = player_land_img_copy.copy()
-player_land_img = pygame.transform.scale(player_land_img_copy, (player_land_img_copy.get_width() * 1.2, player_land_img_copy.get_height() * 1.2))
+player_land_img = pygame.transform.scale(player_land_img_copy, (player_land_img_copy.get_width() * 1.5, player_land_img_copy.get_height() * 1.5))
 player_land_img.set_colorkey((0,0,0))
 tree_img_copy = pygame.image.load("./Assets/Sprites/tree.png").convert_alpha()
 tree_img = tree_img_copy.copy()
@@ -130,9 +130,9 @@ player_x = 0
 player_y = 0
 player_run_animation = []
 for x in range(4):
-    player_idle_animation.append(get_image(player_idle_img, x, 23, 37, 1.2, (0,0,0)))
+    player_idle_animation.append(get_image(player_idle_img, x, 23, 37, 1.5, (0,0,0)))
 for x in range(4):
-    player_run_animation.append(get_image(player_run_img, x, 23, 37, 1.2, (0,0,0)))
+    player_run_animation.append(get_image(player_run_img, x, 23, 37, 1.5, (0,0,0)))
 player = f.Player(30,30,player_idle_animation[0].get_width(),player_idle_animation[0].get_height(), player_img, player_idle_animation, player_run_animation, player_land_img)
 #Random Variables
 true_scroll = [0,0]
@@ -147,6 +147,8 @@ pick_up_font = pygame.font.Font("./Assets/Fonts/jayce.ttf", 15)
 glow_effects = []
 for x in range(150):
     glow_effects.append(f.Glow((random.randint(-1000, 3000), random.randint(-100,700))))
+#Enchanted Particles
+enchanted = f.Enchanted([0,0])
 #background stripes
 bg = backg.background()
 bg_particle_effect = bg_particles.Master()
@@ -184,7 +186,6 @@ while run:
     dt *= 60
     last_time = t.time()
     time = pygame.time.get_ticks()
-    #display.fill((21,29,40 * 1.5))
     display.fill((157,225,255))
     #VFX
     for glow_effect in glow_effects:
@@ -311,6 +312,9 @@ while run:
 
             bullet.get_rect().x = bullet_x
             bullet.get_rect().y = bullet_y
+    #Enchanted Blitting
+    enchanted.update((player.get_rect().x, player.get_rect().y + 30))
+    enchanted.draw(time, display, scroll)
     #Player Blitting
     if inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
         player.move(tile_rects, time, dt, display, scroll, True, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])
@@ -326,7 +330,6 @@ while run:
     #Smoke Blitting
     for s in smokes:
         s.draw(display, scroll,time)
-
     #Mouse Blitting
     pygame.draw.circle(display,(200,0,0), (mpos[0]//2, mpos[1]//2), 4)
     for event in pygame.event.get():
