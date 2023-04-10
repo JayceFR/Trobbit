@@ -211,9 +211,20 @@ while run:
                 x_pos += 2.5
                 grasses.append(g.grass([x_pos, loc[1]+14], 2, 18))
         grass_spawn = False
-    if enemy_spawn:
+    if enemy_spawn:           
         for loc in enemy_locs:
-            enemies.append(enemy.Enemy(loc, 32, 32, random.randint(2,7), random.randint(1000,2000), pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)))
+            choice = random.randint(1,3)
+            cooldown = [0,0]
+            if choice == 1:
+                gun = pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
+                cooldown = [1000, 2000]
+            elif choice == 2:
+                gun = smg.SMG(loc, smg_img.get_width(), smg_img.get_height(), smg_img, smg_bullet_img)
+                cooldown = [100, 300]
+            else:
+                gun = rocket.Rocket(loc,rocket_img.get_width(), rocket_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img)
+                cooldown = [1000, 2000]
+            enemies.append(enemy.Enemy(loc, 32, 32, random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun ))
         enemy_spawn = False
     if rocket_spawn:
         for loc in rocket_locs:
@@ -288,6 +299,12 @@ while run:
             bullet.get_rect().y += scroll[1]
             if bullet.get_rect().colliderect(player.get_rect()):
                 player.health -= 10
+                for x in range(30):
+                    if bullet.get_gun() == "r":
+                        sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
+                    else:
+                        sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
+                bullet.alive = False
             bullet.get_rect().x = bullet_x
             bullet.get_rect().y = bullet_y
     #Calculating Scroll
