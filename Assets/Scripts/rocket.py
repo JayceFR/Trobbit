@@ -116,7 +116,9 @@ class Rocket():
     
     def facing_direction(self):
         return self.facing_right
-            
+
+    def get_gun(self):
+        return "r" 
 
     def shoot(self, loc, width, height, angle, time):
         #Creating a bullet

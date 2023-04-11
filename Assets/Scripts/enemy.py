@@ -110,5 +110,8 @@ class Enemy():
     def get_rect(self):
         return self.rect
 
+    def get_gun(self):
+        return self.gun.get_gun()
+
     def destroy(self):
         del self.bullets

@@ -353,6 +353,12 @@ while run:
             bullet.get_rect().x = bullet_x
             bullet.get_rect().y = bullet_y
         if e.health <= 0:
+            if e.get_gun() == "p":
+                pistols.append(e.gun)
+            if e.get_gun() == "r":
+                rockets.append(e.gun)
+            if e.get_gun() == "s":
+                smgs.append(e.gun)
             e.destroy()
             enemies.pop(position)
     #Calculating Scroll

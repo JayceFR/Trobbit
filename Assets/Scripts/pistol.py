@@ -89,6 +89,9 @@ class Pistol():
                 particle.move(1)
                 particle.draw(display)
     
+    def get_gun(self):
+        return "p"
+    
     def update(self, time, tiles):
         if self.free_handed:
             self.movement = [0,0]

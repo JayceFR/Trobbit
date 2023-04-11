@@ -49,6 +49,9 @@ class SMG():
                 collision_types["top"] = True
         return collision_types
     
+    def get_gun(self):
+        return "s"
+
     def draw(self, display, scroll, angle):
         if self.recoil:
             if self.facing_right:
