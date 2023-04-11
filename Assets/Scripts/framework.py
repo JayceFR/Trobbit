@@ -27,7 +27,7 @@ class Player():
         self.jump = False
         self.jump_last_update = 0
         self.jump_cooldown = 600
-        self.jump_up_spped = 6
+        self.jump_up_spped = 10
         self.air_timer = 0
         self.collision_type = {}
         self.in_air = False
@@ -138,14 +138,14 @@ class Player():
                 self.facing_left = True
                 self.facing_right = False
         if self.jump:
-            if self.air_timer < 20:
+            if self.air_timer < 40:
                 self.air_timer += 1
                 self.movement[1] -= self.jump_up_spped
                 self.jump_up_spped -= 0.5
             else:
                 self.air_timer = 0
                 self.jump = False
-                self.jump_up_spped = 6
+                self.jump_up_spped = 10
 
         #Frame
         if time - self.frame_last_update > self.frame_cooldown:

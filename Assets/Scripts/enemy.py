@@ -2,7 +2,7 @@ import random
 import math
 import pygame
 class Enemy():
-    def __init__(self, loc, width, height, speed, shoot_cooldown, gun) -> None:
+    def __init__(self, loc, width, height, speed, shoot_cooldown, gun, move = True) -> None:
         self.loc = loc
         self.width = width
         self.height = height
@@ -18,6 +18,7 @@ class Enemy():
         self.speed = speed
         self.bullets = []
         self.health = 100
+        self.can_move = move
     
     def collision_test(self, tiles):
         hitlist = []
@@ -67,7 +68,8 @@ class Enemy():
         if time - self.shoot_last_update > self.shoot_cooldown:
             self.gun.shoot((self.gun.rect.x - scroll[0], self.gun.rect.y - scroll[1]), self.gun.bullet_img.get_width(), self.gun.bullet_img.get_height(), angle, time)
             self.shoot_last_update = time
-        self.movement[0] += math.cos(angle) * self.speed
+        if self.can_move:
+            self.movement[0] += math.cos(angle) * self.speed
         self.movement[1] += self.graviy
         self.collision_type = self.collision_checker(tiles)
         return self.bullets

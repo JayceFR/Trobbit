@@ -84,7 +84,7 @@ player_idle_img = pygame.image.load("./Assets/Sprites/player_idle.png").convert_
 player_run_img = pygame.image.load("./Assets/Sprites/player_run.png").convert_alpha()
 player_land_img_copy = pygame.image.load("./Assets/Sprites/player_land.png").convert_alpha()
 player_land_img = player_land_img_copy.copy()
-player_land_img = pygame.transform.scale(player_land_img_copy, (player_land_img_copy.get_width() * 1.5, player_land_img_copy.get_height() * 1.5))
+player_land_img = pygame.transform.scale(player_land_img_copy, (player_land_img_copy.get_width() * 1.2, player_land_img_copy.get_height() * 1.27))
 player_land_img.set_colorkey((0,0,0))
 tree_img_copy = pygame.image.load("./Assets/Sprites/tree.png").convert_alpha()
 tree_img = tree_img_copy.copy()
@@ -130,9 +130,9 @@ player_x = 0
 player_y = 0
 player_run_animation = []
 for x in range(4):
-    player_idle_animation.append(get_image(player_idle_img, x, 23, 37, 1.5, (0,0,0)))
+    player_idle_animation.append(get_image(player_idle_img, x, 23, 37, 1.2, (0,0,0)))
 for x in range(4):
-    player_run_animation.append(get_image(player_run_img, x, 23, 37, 1.5, (0,0,0)))
+    player_run_animation.append(get_image(player_run_img, x, 23, 37, 1.2, (0,0,0)))
 player = f.Player(30,30,player_idle_animation[0].get_width(),player_idle_animation[0].get_height(), player_img, player_idle_animation, player_run_animation, player_land_img)
 #Random Variables
 true_scroll = [0,0]
@@ -214,6 +214,11 @@ while run:
         for loc in enemy_locs:
             choice = random.randint(1,3)
             cooldown = [0,0]
+            move_choice = random.randint(0,1)
+            if move_choice == 0:
+                move = True
+            else:
+                move = False
             if choice == 1:
                 gun = pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
                 cooldown = [1000, 2000]
@@ -223,7 +228,7 @@ while run:
             else:
                 gun = rocket.Rocket(loc,rocket_img.get_width(), rocket_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img)
                 cooldown = [1000, 2000]
-            enemies.append(enemy.Enemy(loc, 32, 32, random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun ))
+            enemies.append(enemy.Enemy(loc, 32, 32, random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, move ))
         enemy_spawn = False
     if rocket_spawn:
         for loc in rocket_locs:
@@ -324,6 +329,14 @@ while run:
                     else:
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
                 bullet.alive = False
+            for tile in tile_rects:
+                if tile.colliderect(bullet.get_rect()):
+                    bullet.alive = False
+                    for x in range(30):
+                        if bullet.get_gun() == "r":
+                            sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
+                        else:
+                            smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
             bullet.get_rect().x = bullet_x
             bullet.get_rect().y = bullet_y
         if e.health <= 0:
@@ -359,10 +372,6 @@ while run:
     #Angle Calculation
     angle = math.atan2(( mpos[1]//2 - (player_y - scroll[1])) , (mpos[0]//2 - (player.get_rect().x - scroll[0])))
     angle *= -1
-    if inventory_items.get(str(inven_slot)) != None:
-        if inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
-            inventory_items[str(inven_slot)].draw(display, scroll, angle)
-            bullets = inventory_items[str(inven_slot)].update(time, tile_rects)
     for tile in tile_rects:
         for bullet in bullets:
             bullet_x = bullet.get_rect().x
@@ -390,6 +399,10 @@ while run:
     player.draw(display, scroll)
     #Blitting Items After Blitting The Player
     blit_grass(grasses, display, scroll, player)
+    if inventory_items.get(str(inven_slot)) != None:
+        if inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
+            inventory_items[str(inven_slot)].draw(display, scroll, angle)
+            bullets = inventory_items[str(inven_slot)].update(time, tile_rects)
     #Sparks Blitting
     for s in sparks:
         s.move(dt)
