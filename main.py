@@ -401,6 +401,7 @@ while run:
                 bullet.alive = False
                 for x in range(30):
                     if bullet.get_gun() == "r":
+                        bullets.append(darts.Bullet((bullet_x  + random.randint(-200, 260), bullet_y + random.randint(-200,200)), 30, 30, bullet_img, 0, "p", True))
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
                     else:
                         smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
