@@ -118,6 +118,16 @@ smg_logo_img = pygame.transform.rotate(smg_logo_img, 45)
 rocket_logo_img = pygame.image.load("./Assets/Entities/rocket.png").convert_alpha()
 rocket_logo_img = pygame.transform.scale(rocket_logo_img, (rocket_logo_img.get_width()//1.5, rocket_logo_img.get_height()//1.5))
 rocket_logo_img = pygame.transform.rotate(rocket_logo_img, 45)
+#Enemy animations
+enemy_costume = {'1' : [[], []], '2' : [[], []], '3' : [[], []], '4' : [[], []]}
+for x in range(4):
+    url_idle = "./Assets/Sprites/enemy" + str(x+1) + "_idle.png"
+    url_run = "./Assets/Sprites/enemy" + str(x + 1) + "_run.png"
+    idle_spritesheet = pygame.image.load(url_idle).convert_alpha()
+    run_spritesheet = pygame.image.load(url_run).convert_alpha()
+    for y in range(4):
+        enemy_costume[str(x+1)][0].append(get_image(idle_spritesheet, y, 15, 20, 1.8, (0,0,0)))
+        enemy_costume[str(x+1)][1].append(get_image(run_spritesheet, y, 15, 20, 1.8, (0,0,0)))
 #Grass
 grasses = []
 grass_loc = []
@@ -230,7 +240,7 @@ while run:
             else:
                 gun = rocket.Rocket(loc,rocket_img.get_width(), rocket_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img)
                 cooldown = [1000, 2000]
-            enemies.append(enemy.Enemy(loc, 32, 32, random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, move ))
+            enemies.append(enemy.Enemy(loc, enemy_costume["1"][0][0].get_width(), enemy_costume["1"][0][0].get_height(), random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, enemy_costume, str(random.randint(1,4)), move ))
         enemy_spawn = False
     if rocket_spawn:
         for loc in rocket_locs:

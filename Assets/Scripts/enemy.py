@@ -2,7 +2,7 @@ import random
 import math
 import pygame
 class Enemy():
-    def __init__(self, loc, width, height, speed, shoot_cooldown, gun, move = True) -> None:
+    def __init__(self, loc, width, height, speed, shoot_cooldown, gun, enemy_costume, whoami, move = True) -> None:
         self.loc = loc
         self.width = width
         self.height = height
@@ -19,6 +19,16 @@ class Enemy():
         self.bullets = []
         self.health = 100
         self.can_move = move
+        self.enemy_costume = enemy_costume
+        self.whoami = whoami
+        self.frame = 0
+        self.frame_last_update = 0
+        self.frame_cooldown = 200
+        self.facing_right = True
+        if self.can_move == True:
+            self.animation = 1
+        else:
+            self.animation = 0
     
     def collision_test(self, tiles):
         hitlist = []
@@ -60,6 +70,7 @@ class Enemy():
     def move(self, angle, time, tiles, scroll):
         self.movement = [0,0]
         self.bullets = self.gun.update(time, tiles)
+        self.facing_right = self.gun.facing_direction()
         if self.gun.facing_direction():
             self.gun.rect.x = self.rect.x + 15
         else:
@@ -72,6 +83,11 @@ class Enemy():
             self.movement[0] += math.cos(angle) * self.speed
         self.movement[1] += self.graviy
         self.collision_type = self.collision_checker(tiles)
+        if time - self.frame_last_update > self.frame_cooldown:
+            self.frame += 1
+            self.frame_last_update = time
+        if self.frame >= 4:
+            self.frame = 0
         return self.bullets
     
     def draw(self, display, scroll, angle):
@@ -80,7 +96,13 @@ class Enemy():
         self.rect.x -= scroll[0]
         self.rect.y -= scroll[1]
         self.draw_health_bar(display, self.health, self.rect.x, self.rect.y)
-        pygame.draw.rect(display, (0,0,0), self.rect)
+        #pygame.draw.rect(display, (0,0,0), self.rect)
+        if self.facing_right:
+            display.blit(self.enemy_costume[self.whoami][self.animation][self.frame], self.rect)
+        else:
+            flip = self.enemy_costume[self.whoami][self.animation][self.frame].copy()
+            flip = pygame.transform.flip(flip, True, False)
+            display.blit(flip, self.rect)
         self.rect.x = self.display_x
         self.rect.y = self.display_y
         self.gun.draw(display, scroll, angle)
