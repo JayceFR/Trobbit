@@ -2,14 +2,15 @@ import pygame
 import math
 
 class Bullet():
-    def __init__(self, loc, width, height, img, angle, which_gun) -> None:
+    def __init__(self, loc, width, height, img, angle, which_gun, fake = False, speed = 30) -> None:
         self.rect = pygame.rect.Rect(loc[0], loc[1], width, height)
         self.img = img.copy()
         self.img = pygame.transform.rotate(self.img, math.degrees(angle))
         self.alive = True
         self.angle = angle
         self.which_gun = which_gun
-        self.speed = 30
+        self.speed = speed
+        self.fake = fake
 
     def move(self):
         self.rect.x += math.cos(self.angle) * self.speed

@@ -1,7 +1,8 @@
-#TODO -> Mkae explosion for rocket launcher
+#TODO -> Make explosion for rocket launcher
 #TODO -> Add Med Kit and chicken
 #TODO -> Good Level Design
 #TODO -> Make enemies a bit weak
+#TODO -> Complete Inventory Management
 
 import pygame 
 import time as t
@@ -16,6 +17,7 @@ import Assets.Scripts.smg as smg
 import Assets.Scripts.rocket as rocket
 import Assets.Scripts.sparks as spark
 import Assets.Scripts.enemy as enemy
+import Assets.Scripts.bullet as darts
 pygame.init()
 from pygame.locals import *
 
@@ -309,6 +311,14 @@ while run:
                     else:
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
                 bullet.alive = False
+            for tile in tile_rects:
+                if tile.colliderect(bullet.get_rect()):
+                    bullet.alive = False
+                    for x in range(30):
+                        if bullet.get_gun() == "r":
+                            sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
+                        else:
+                            smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
             bullet.get_rect().x = bullet_x
             bullet.get_rect().y = bullet_y
         for bullet in bullets:
@@ -325,18 +335,11 @@ while run:
                     e.health -= 10
                 for x in range(30):
                     if bullet.get_gun() == "r":
+                        bullets.append(darts.Bullet((bullet_x, bullet_y), 30, 30, bullet_img, 0, "s", True))
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,103,20 ), 2, 1))
                     else:
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
                 bullet.alive = False
-            for tile in tile_rects:
-                if tile.colliderect(bullet.get_rect()):
-                    bullet.alive = False
-                    for x in range(30):
-                        if bullet.get_gun() == "r":
-                            sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
-                        else:
-                            smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
             bullet.get_rect().x = bullet_x
             bullet.get_rect().y = bullet_y
         if e.health <= 0:
