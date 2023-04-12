@@ -123,7 +123,7 @@ class Rocket():
     def shoot(self, loc, width, height, angle, time):
         #Creating a bullet
         if self.bullet_in_gun:
-            self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "r", time, speed = 15))
+            self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "r", time, speed = 15, die_time= 1000))
             angle *= -1
             self.recoil = True
             self.recoil_last_update = time

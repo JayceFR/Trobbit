@@ -113,7 +113,7 @@ class Player():
                 collision_types["top"] = True
         return collision_types
 
-    def move(self, tiles, time, dt, display, scroll, gun, facing_right, pistol = None):
+    def move(self, tiles, time, dt, display, scroll, gun, facing_right, pistol = None, shield = False):
         self.movement = [0, 0]
         if (self.moving_left or self.moving_right) and not self.jump:
             #self.speed += self.acceleration
@@ -172,10 +172,21 @@ class Player():
 
         if pistol != None:
             if self.facing_right:
-                pistol.rect.x = self.rect.x
+                if not shield:
+                    pistol.rect.x = self.rect.x
+                else:
+                    pistol.facing_right = True
+                    pistol.rect.x = self.rect.x + 17
             else:
-                pistol.rect.x = self.rect.x - 8
-            pistol.rect.y = self.rect.y + 15
+                if not shield:
+                    pistol.rect.x = self.rect.x - 8
+                else:
+                    pistol.facing_right = False
+                    pistol.rect.x = self.rect.x - 7
+            if not shield:
+                pistol.rect.y = self.rect.y + 15
+            else:
+                pistol.rect.y = self.rect.y + 5
 
         if self.collision_type['bottom']:
             if self.in_air:
@@ -232,10 +243,11 @@ class Map():
         smg_loc = []
         rocket_loc = []
         enemy_loc = []
+        shield_loc = []
         for row in self.map:
             x = 0 
             for element in row:
-                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e":
+                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l":
                     window.blit(self.tiles[int(element)-1], (x * 32 - scroll[0], y * 32 - scroll[1]))
                 if element == "t":
                     window.blit(self.tree, (x * 32 - scroll[0] - 90, y * 32 - scroll[1] - 150))
@@ -247,13 +259,15 @@ class Map():
                     smg_loc.append((x*32,y*32))
                 if element == "r":
                     rocket_loc.append((x*32, y*32))
+                if element == "l":
+                    shield_loc.append((x*32,y*32))
                 if element == "e":
                     enemy_loc.append((x*32,y*32))
-                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e":
+                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l":
                     tile_rects.append(pygame.rect.Rect(x*32,y*32,32,32))
                 x += 1
             y += 1
-        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, enemy_loc
+        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, enemy_loc, shield_loc
 
 
 class Glow():
