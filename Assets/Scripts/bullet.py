@@ -2,17 +2,20 @@ import pygame
 import math
 
 class Bullet():
-    def __init__(self, loc, width, height, img, angle, which_gun, fake = False, speed = 30) -> None:
+    def __init__(self, loc, width, height, img, angle, which_gun, time, fake = False, speed = 30) -> None:
         self.rect = pygame.rect.Rect(loc[0], loc[1], width, height)
         self.img = img.copy()
         self.img = pygame.transform.rotate(self.img, math.degrees(angle))
         self.alive = True
         self.angle = angle
         self.which_gun = which_gun
+        self.start_time = time
         self.speed = speed
         self.fake = fake
 
-    def move(self):
+    def move(self, time):
+        if time - self.start_time > 500:
+            self.alive = False
         self.rect.x += math.cos(self.angle) * self.speed
         self.rect.y -= math.sin(self.angle) * self.speed
         if self.rect.x >= 10000 or self.rect.x < -1000 or self.rect.y <= -100 or self.rect.y >= 1000:
@@ -20,7 +23,8 @@ class Bullet():
     
     def draw(self, display):
         #pygame.draw.circle(display, (255,255,255), (self.rect.x, self.rect.y), 4)
-        display.blit(self.img, (self.rect.x, self.rect.y))
+        if not self.fake:
+            display.blit(self.img, (self.rect.x, self.rect.y))
     
     def get_rect(self):
         return self.rect

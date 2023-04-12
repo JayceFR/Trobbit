@@ -99,7 +99,7 @@ class SMG():
             self.collision_checker(tiles)
         for pos, bullet in sorted(enumerate(self.bullets), reverse=True):
             if bullet.alive:
-                bullet.move()
+                bullet.move(time)
             else:
                 self.bullets.pop(pos)
         if self.recoil:
@@ -113,7 +113,7 @@ class SMG():
 
     def shoot(self, loc, width, height, angle, time):
         #Creating a bullet
-        self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "s"))
+        self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "s", time))
         angle *= -1
         self.recoil = True
         self.recoil_last_update = time

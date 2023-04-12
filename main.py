@@ -214,6 +214,12 @@ while run:
     mpos = pygame.mouse.get_pos()
     #Blitting the Map
     tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, enemy_locs = map.blit_map(display, scroll)
+    #Calculating Scroll
+    true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) / 5
+    true_scroll[1] += (player.get_rect().y - true_scroll[1] - 162) / 5
+    scroll = true_scroll.copy()
+    scroll[0] = int(scroll[0])
+    scroll[1] = int(scroll[1])
     #Creating Items
     if grass_spawn:
         for loc in grass_loc:
@@ -315,11 +321,16 @@ while run:
             bullet.get_rect().y += scroll[1]
             if bullet.get_rect().colliderect(player.get_rect()):
                 player.health -= 10
+                scroll[0] += random.randint(-20,20)
+                scroll[1] += random.randint(-20,20)
                 for x in range(30):
                     if bullet.get_gun() == "r":
+                        scroll[0] += random.randint(-50,50)
+                        scroll[1] += random.randint(-50, 50)
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,103,20 ), 2, 1))
                     else:
-                        sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
+                        smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1]), (120,0,0)))
+                        #sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
                 bullet.alive = False
             for tile in tile_rects:
                 if tile.colliderect(bullet.get_rect()):
@@ -338,17 +349,24 @@ while run:
             bullet.get_rect().y += scroll[1]
             if bullet.get_rect().colliderect(e.get_rect()):
                 if bullet.get_gun() == "r":
+                    scroll[0] += random.randint(-50,50)
+                    scroll[1] += random.randint(-50, 50)
                     e.health -= 70
                 if bullet.get_gun() == "p":
+                    scroll[0] += random.randint(-20,20)
+                    scroll[1] += random.randint(-20,20)
                     e.health -= 30
                 if bullet.get_gun() == "s":
+                    scroll[0] += random.randint(-20,20)
+                    scroll[1] += random.randint(-20,20)
                     e.health -= 10
                 for x in range(30):
                     if bullet.get_gun() == "r":
-                        bullets.append(darts.Bullet((bullet_x, bullet_y), 30, 30, bullet_img, 0, "s", True))
+                        bullets.append(darts.Bullet((bullet_x, bullet_y), 30, 30, bullet_img, 0, "s", time, True))
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,103,20 ), 2, 1))
                     else:
-                        sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
+                        #sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
+                        smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1]), (200, 0,  0)))
                 bullet.alive = False
             bullet.get_rect().x = bullet_x
             bullet.get_rect().y = bullet_y
@@ -361,12 +379,7 @@ while run:
                 smgs.append(e.gun)
             e.destroy()
             enemies.pop(position)
-    #Calculating Scroll
-    true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) / 5
-    true_scroll[1] += (player.get_rect().y - true_scroll[1] - 162) / 5
-    scroll = true_scroll.copy()
-    scroll[0] = int(scroll[0])
-    scroll[1] = int(scroll[1])
+    
     #Smg Spray Shoot
     if smg_spray:
         if time - smg_last_update > smg_cooldown:
@@ -401,7 +414,7 @@ while run:
                 bullet.alive = False
                 for x in range(30):
                     if bullet.get_gun() == "r":
-                        bullets.append(darts.Bullet((bullet_x  + random.randint(-200, 260), bullet_y + random.randint(-200,200)), 30, 30, bullet_img, 0, "p", True))
+                        bullets.append(darts.Bullet((bullet_x  + random.randint(-200, 260), bullet_y + random.randint(-200,200)), 30, 30, bullet_img, math.radians(random.randint(0,360)), "p", time, True))
                         sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
                     else:
                         smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))

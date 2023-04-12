@@ -106,7 +106,7 @@ class Rocket():
             self.collision_checker(tiles)
         for pos, bullet in sorted(enumerate(self.bullets), reverse=True):
             if bullet.alive:
-                bullet.move()
+                bullet.move(time)
             else:
                 self.bullets.pop(pos)
         if self.recoil:
@@ -123,7 +123,7 @@ class Rocket():
     def shoot(self, loc, width, height, angle, time):
         #Creating a bullet
         if self.bullet_in_gun:
-            self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "r", speed = 15))
+            self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "r", time, speed = 15))
             angle *= -1
             self.recoil = True
             self.recoil_last_update = time
