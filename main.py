@@ -117,6 +117,8 @@ smg_bullet_img = pygame.image.load("./Assets/Entities/smg_bullet.png").convert_a
 pistol_logo_img = pistol_img.copy()
 pistol_logo_img = pygame.transform.scale(pistol_logo_img, (pistol_logo_img.get_width()//2, pistol_img.get_height()//2))
 pistol_logo_img = pygame.transform.rotate(pistol_logo_img, 45)
+aim_point_img = pygame.image.load("./Assets/Entities/aim_point.png").convert_alpha()
+aim_point_img.set_colorkey((255,255,255))
 smg_logo_img = smg_img.copy()
 smg_logo_img = pygame.transform.scale(smg_logo_img, (smg_logo_img.get_width()//2, smg_logo_img.get_height()//2))
 smg_logo_img = pygame.transform.rotate(smg_logo_img, 45)
@@ -376,7 +378,7 @@ while run:
                 if bullet.get_gun() == "r":
                     scroll[0] += random.randint(-50,50)
                     scroll[1] += random.randint(-50, 50)
-                    e.health -= 70
+                    e.health -= 110
                 if bullet.get_gun() == "p":
                     scroll[0] += random.randint(-20,20)
                     scroll[1] += random.randint(-20,20)
@@ -486,7 +488,8 @@ while run:
     for s in smokes:
         s.draw(display, scroll,time)
     #Mouse Blitting
-    pygame.draw.circle(display,(200,0,0), (mpos[0]//2, mpos[1]//2), 4)
+    #pygame.draw.circle(display,(200,0,0), (mpos[0]//2, mpos[1]//2), 4)
+    display.blit(aim_point_img, (mpos[0]//2 + aim_point_img.get_width()//2 - 15, mpos[1]//2 - 15 + aim_point_img.get_height()//2))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
