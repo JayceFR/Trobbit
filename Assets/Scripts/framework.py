@@ -186,7 +186,7 @@ class Player():
             if not shield:
                 pistol.rect.y = self.rect.y + 15
             else:
-                pistol.rect.y = self.rect.y + 5
+                pistol.rect.y = self.rect.y 
 
         if self.collision_type['bottom']:
             if self.in_air:

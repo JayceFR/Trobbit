@@ -9,6 +9,7 @@ class Shield():
         self.collision_types = {}
         self.img = img
         self.facing_right = True
+        self.health = 100
     
     def collision_test(self, tiles):
         hitlist = []
@@ -43,6 +44,14 @@ class Shield():
         self.movement = [0,0]
         self.movement[1] += 5
         self.collision_types = self.collision_checker(tiles)
+    
+    def draw_health_bar(self, display, x, y):
+        x -= 25
+        y -= 10
+        ratio = self.health / 100
+        pygame.draw.rect(display, (2,17,179), (x - 2, y - 2, 80  , 27//2))
+        pygame.draw.rect(display, (255,0,0), (x, y, 76  , 25//2))
+        pygame.draw.rect(display, (202,68,255), (x, y, 76 * ratio , 25//2))
     
     def draw(self, display, scroll):
         self.display_x = self.rect.x
