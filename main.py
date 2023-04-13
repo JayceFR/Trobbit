@@ -1,5 +1,4 @@
-#TODO -> Make explosion for rocket launcher
-#TODO -> Add Med Kit and chicken and shield
+#TODO -> Add Med Kit and chicken 
 #TODO -> Good Level Design
 #TODO -> Complete Inventory Management
 
@@ -43,7 +42,7 @@ def blit_inventory(display, inventory, font, item_dict, item_slot):
         if item_slot == x:
             pygame.draw.rect(display, (0,150,0), pygame.rect.Rect(left, 275, 20, 20), border_radius=5)    
         else:
-            pygame.draw.rect(display, (150,0,0), pygame.rect.Rect(left, 275, 20, 20), border_radius=5)
+            pygame.draw.rect(display, (242,121,37), pygame.rect.Rect(left, 275, 20, 20), border_radius=5)
         draw_text(str(x+1), font, (255,255,255), left + 9, 294, display)
         pygame.draw.rect(display, (0,0,0), pygame.rect.Rect(left + 2, 275 + 2.5, 20 - 2.5, 20 - 2.5), border_radius=4)
         if item_dict.get(inventory[x]) != None:
@@ -56,6 +55,15 @@ def blit_inventory(display, inventory, font, item_dict, item_slot):
             if item_dict[inventory[x]][0] == "Shield":
                 display.blit(item_dict[inventory[x]][1], (left + 3, 275 + 3.5))
         left += 25
+
+def blit_left_inventory(display, inventory, inven_slot, item_dict):
+    left = 10
+    pygame.draw.rect(display, (0,0,0), pygame.rect.Rect(0, 271, 110 , 40))
+    pygame.draw.polygon(display, (0,0,0), [[110 - 6,270 + 2.5], [110 -6,300], [130 - 9,300]], 15)
+    pygame.draw.line(display, (242,121,37), (left - 10, 270), (110, 270))
+    pygame.draw.line(display, (242,121,37), (110, 270), (130 , 300))
+    if inventory[inven_slot] == "p" or inventory[inven_slot] == "r" or inventory[inven_slot] == "s" :
+        display.blit(item_dict[inventory[inven_slot]][3], (0, 275))
 
 def draw_text(text, font, text_col, x, y, display):
     img = font.render(text, True, text_col)
@@ -199,7 +207,7 @@ sparks = []
 smokes = []
 yeagle = pistol.Pistol((35, 45), pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
 #Dictionary Of Items
-item_dict = {"p" : ["Pistol", pistol_logo_img, -2], "s" : ["SMG", smg_logo_img, -2], "r" : ["Rocket", rocket_logo_img, -2], "l" : ["Shield", shield_logo_img, -2]}
+item_dict = {"p" : ["Pistol", pistol_logo_img, -2, pistol_img], "s" : ["SMG", smg_logo_img, -2, smg_img], "r" : ["Rocket", rocket_logo_img, -2, rocket_img], "l" : ["Shield", shield_logo_img, -2]}
 #Enemy
 enemies = []
 enemy_spawn = True
@@ -407,7 +415,7 @@ while run:
             e.destroy()
             enemies.pop(position)
     #Drawing Shields
-    for pos, p in sorted(enumerate(shields), reverse = True):
+    for position, p in sorted(enumerate(shields), reverse = True):
         if p.get_rect().colliderect(player.get_rect()):
             #pop up e
             draw_text("E",pick_up_font, (255,255,255), p.get_rect().x - scroll[0] + 16, p.get_rect().y - 16 - scroll[1], display )
@@ -417,7 +425,7 @@ while run:
                     inventory[pos] = "l"
                     item_dict["l"][2] = pos
                     inventory_items[str(pos)] = p
-                    shields.pop(pos)
+                    shields.pop(position)
         p.update(tile_rects)
         p.draw(display, scroll)
     #Smg Spray Shoot
@@ -435,6 +443,7 @@ while run:
     if key[pygame.K_4]:
         inven_slot = 3
     blit_inventory(display, inventory, inven_font, item_dict, inven_slot)
+    blit_left_inventory(display, inventory, inven_slot, item_dict)
     if player.right_facing():
         player_x = player.get_rect().x + 22
         player_y = player.get_rect().y + 15
