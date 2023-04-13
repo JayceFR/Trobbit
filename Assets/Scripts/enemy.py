@@ -21,6 +21,7 @@ class Enemy():
         self.can_move = move
         self.enemy_costume = enemy_costume
         self.whoami = whoami
+        self.start = False
         self.frame = 0
         self.frame_last_update = 0
         self.frame_cooldown = 200
@@ -67,7 +68,7 @@ class Enemy():
         pygame.draw.rect(display, (255,0,0), (x, y, 76  , 15//2))
         pygame.draw.rect(display, (120,75,75), (x, y, 76 * ratio , 15//2))
     
-    def move(self, angle, time, tiles, scroll):
+    def move(self, angle, time, tiles, scroll, player_loc):
         self.movement = [0,0]
         self.bullets = self.gun.update(time, tiles)
         self.facing_right = self.gun.facing_direction()
@@ -76,11 +77,16 @@ class Enemy():
         else:
             self.gun.rect.x = self.rect.x - 15
         self.gun.rect.y = self.rect.y + 10
-        if time - self.shoot_last_update > self.shoot_cooldown:
-            self.gun.shoot((self.gun.rect.x - scroll[0], self.gun.rect.y - scroll[1]), self.gun.bullet_img.get_width(), self.gun.bullet_img.get_height(), angle, time)
-            self.shoot_last_update = time
-        if self.can_move:
-            self.movement[0] += math.cos(angle) * self.speed
+        if not self.start:
+            distance_between = math.sqrt(math.pow((player_loc[0] - self.rect.x), 2) + math.pow((player_loc[1] - self.rect.y), 2))
+            if distance_between < 350:
+                self.start = True
+        if self.start:
+            if time - self.shoot_last_update > self.shoot_cooldown:
+                self.gun.shoot((self.gun.rect.x - scroll[0], self.gun.rect.y - scroll[1]), self.gun.bullet_img.get_width(), self.gun.bullet_img.get_height(), angle, time)
+                self.shoot_last_update = time
+            if self.can_move:
+                self.movement[0] += math.cos(angle) * self.speed
         self.movement[1] += self.graviy
         self.collision_type = self.collision_checker(tiles)
         if time - self.frame_last_update > self.frame_cooldown:

@@ -5,7 +5,7 @@ import Assets.Scripts.bullet as b
 import Assets.Scripts.sparks as sparks
 
 class SMG():
-    def __init__(self, loc, width, height, pistol_img, bullet_img) -> None:
+    def __init__(self, loc, width, height, pistol_img, bullet_img, bullet_count = 30) -> None:
         self.rect = pygame.rect.Rect(loc[0], loc[1], width, height)
         self.dup_x = 0
         self.facing_right = True
@@ -19,6 +19,7 @@ class SMG():
         self.recoil_cooldown = 50
         self.recoil_last_update = 0
         self.movement = []
+        self.bullet_count = bullet_count
     
     def collision_test(self, tiles):
         hitlist = []
@@ -113,12 +114,17 @@ class SMG():
 
     def shoot(self, loc, width, height, angle, time):
         #Creating a bullet
-        self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "s", time))
-        angle *= -1
-        self.recoil = True
-        self.recoil_last_update = time
-        for x in range(5):
-            self.particles.append(sparks.Spark([loc[0], loc[1]],math.radians(random.randint(int(math.degrees(angle)) - 20, int(math.degrees(angle)) + 20)) , random.randint(3,6), (120,120,120), 0.4, 1))
+        if self.bullet_count > 0:
+            self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "s", time))
+            angle *= -1
+            self.recoil = True
+            self.recoil_last_update = time
+            for x in range(5):
+                self.particles.append(sparks.Spark([loc[0], loc[1]],math.radians(random.randint(int(math.degrees(angle)) - 20, int(math.degrees(angle)) + 20)) , random.randint(3,6), (120,120,120), 0.4, 1))
+            self.bullet_count -= 1
+    
+    def get_bullet_count(self):
+        return self.bullet_count
     
     def get_rect(self):
         return self.rect

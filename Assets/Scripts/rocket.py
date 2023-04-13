@@ -5,7 +5,7 @@ import Assets.Scripts.bullet as b
 import Assets.Scripts.sparks as sparks
 
 class Rocket():
-    def __init__(self, loc, width, height, pistol_img, pistol_body, bullet_img) -> None:
+    def __init__(self, loc, width, height, pistol_img, pistol_body, bullet_img, bullet_count = 1) -> None:
         self.rect = pygame.rect.Rect(loc[0], loc[1], width, height)
         self.dup_x = 0
         self.facing_right = True
@@ -20,6 +20,7 @@ class Rocket():
         self.recoil = False
         self.recoil_cooldown = 50
         self.recoil_last_update = 0
+        self.bullet_count = bullet_count
         self.movement = []
         self.free_handed = True
     
@@ -130,6 +131,10 @@ class Rocket():
             for x in range(5):
                 self.particles.append(sparks.Spark([loc[0], loc[1]],math.radians(random.randint(int(math.degrees(angle)) - 20, int(math.degrees(angle)) + 20)) , random.randint(3,6), (120,120,120), 0.4, 1))
             self.bullet_in_gun = False
+            self.bullet_count -= 1
+    
+    def get_bullet_count(self):
+        return self.bullet_count
     
     def get_rect(self):
         return self.rect

@@ -336,7 +336,7 @@ while run:
     for position, e in sorted(enumerate(enemies), reverse=True):
         enemy_angle = math.atan2(( (e.get_rect().y - scroll[1]) - (player.get_rect().y - scroll[1])) , ( (e.get_rect().x - scroll[0]) - (player.get_rect().x - scroll[0])))
         enemy_angle = math.pi - enemy_angle
-        enemy_bullets = e.move(enemy_angle, time, tile_rects, scroll)
+        enemy_bullets = e.move(enemy_angle, time, tile_rects, scroll, (player.get_rect().x, player.get_rect().y))
         e.draw(display, scroll, enemy_angle)
         #Checking for collisions with player
         for bullet in enemy_bullets:
@@ -355,7 +355,10 @@ while run:
                             smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
             if bullet.get_rect().colliderect(player.get_rect()):
                 if bullet.alive:
-                    player.health -= 10
+                    if bullet.get_gun() == "r":
+                        player.health -= 70
+                    else:
+                        player.health -= 10
                     scroll[0] += random.randint(-20,20)
                     scroll[1] += random.randint(-20,20)
                     for x in range(30):
