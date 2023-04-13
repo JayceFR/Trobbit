@@ -115,7 +115,7 @@ class SMG():
     def shoot(self, loc, width, height, angle, time):
         #Creating a bullet
         if self.bullet_count > 0:
-            self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "s", time))
+            self.bullets.append(b.Bullet(loc, self.bullet_img.get_width(), self.bullet_img.get_height(), self.bullet_img, angle, "s", time))
             angle *= -1
             self.recoil = True
             self.recoil_last_update = time

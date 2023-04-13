@@ -56,7 +56,7 @@ def blit_inventory(display, inventory, font, item_dict, item_slot):
                 display.blit(item_dict[inventory[x]][1], (left + 3, 275 + 3.5))
         left += 25
 
-def blit_left_inventory(display, inventory, inven_slot, item_dict):
+def blit_left_inventory(display, inventory, inven_slot, item_dict, inventory_items, font):
     left = 10
     pygame.draw.rect(display, (0,0,0), pygame.rect.Rect(0, 271, 110 , 40))
     pygame.draw.polygon(display, (0,0,0), [[110 - 6,270 + 2.5], [110 -6,300], [130 - 9,300]], 15)
@@ -64,6 +64,14 @@ def blit_left_inventory(display, inventory, inven_slot, item_dict):
     pygame.draw.line(display, (242,121,37), (110, 270), (130 , 300))
     if inventory[inven_slot] == "p" or inventory[inven_slot] == "r" or inventory[inven_slot] == "s" :
         display.blit(item_dict[inventory[inven_slot]][3], (0, 275))
+        flip = item_dict[inventory[inven_slot]][4].copy()
+        if inventory[inven_slot] == "s":
+            flip = pygame.transform.scale(flip, (flip.get_width()*2, flip.get_height()*2))
+        else:
+            flip = pygame.transform.scale(flip, (flip.get_width()*1.2, flip.get_height()*1.2))
+        flip = pygame.transform.rotate(flip, 90)
+        display.blit(flip, (50, 275))
+        draw_text(str(inventory_items[str(inven_slot)].get_bullet_count()), font, (255,255,255), 70, 265, display )
 
 def draw_text(text, font, text_col, x, y, display):
     img = font.render(text, True, text_col)
@@ -173,6 +181,7 @@ pygame.mouse.set_visible(False)
 #Fonts
 inven_font = pygame.font.Font("./Assets/Fonts/jayce.ttf", 5)
 pick_up_font = pygame.font.Font("./Assets/Fonts/jayce.ttf", 15)
+left_inven_font = pygame.font.Font("./Assets/Fonts/jayce.ttf", 30)
 #lightings
 glow_effects = []
 for x in range(150):
@@ -207,7 +216,7 @@ sparks = []
 smokes = []
 yeagle = pistol.Pistol((35, 45), pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
 #Dictionary Of Items
-item_dict = {"p" : ["Pistol", pistol_logo_img, -2, pistol_img], "s" : ["SMG", smg_logo_img, -2, smg_img], "r" : ["Rocket", rocket_logo_img, -2, rocket_img], "l" : ["Shield", shield_logo_img, -2]}
+item_dict = {"p" : ["Pistol", pistol_logo_img, -2, pistol_img, bullet_img], "s" : ["SMG", smg_logo_img, -2, smg_img, smg_bullet_img], "r" : ["Rocket", rocket_logo_img, -2, rocket_img, rocket_ammo_img], "l" : ["Shield", shield_logo_img, -2]}
 #Enemy
 enemies = []
 enemy_spawn = True
@@ -446,7 +455,7 @@ while run:
     if key[pygame.K_4]:
         inven_slot = 3
     blit_inventory(display, inventory, inven_font, item_dict, inven_slot)
-    blit_left_inventory(display, inventory, inven_slot, item_dict)
+    blit_left_inventory(display, inventory, inven_slot, item_dict, inventory_items, left_inven_font )
     if player.right_facing():
         player_x = player.get_rect().x + 22
         player_y = player.get_rect().y + 15
