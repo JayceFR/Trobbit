@@ -2,12 +2,14 @@ import pygame
 import random
 
 class Eggs():
-    def __init__(self, loc, width, height, img) -> None:
+    def __init__(self, loc, width, height, img, whoami) -> None:
         self.loc = loc
         self.width = width
         self.height = height
         self.img = img
+        self.rect = pygame.rect.Rect(loc[0], loc[1], width, height)
         self.movement = [0,0]
+        self.whoami = whoami
         self.collision_type = {}
         self.duplicate_x = 0
         self.duplicate_y = 0
@@ -54,3 +56,9 @@ class Eggs():
         display.blit(self.img, self.rect)
         self.rect.x = self.duplicate_x
         self.rect.y = self.duplicate_y
+    
+    def get_rect(self):
+        return self.rect
+
+    def get_whoami(self):
+        return self.whoami

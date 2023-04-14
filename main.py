@@ -19,6 +19,7 @@ import Assets.Scripts.bullet as darts
 import Assets.Scripts.shield as shield
 import Assets.Scripts.water as water
 import Assets.Scripts.fab as fab
+import Assets.Scripts.eggs as egg
 pygame.init()
 from pygame.locals import *
 
@@ -170,7 +171,9 @@ for x in range(4):
 egg_images = []
 for x in range(4):
     url = "./Assets/Entities/egg" + str(x+1) + ".png"
-    egg_images.append(pygame.image.load(url).convert_alpha())
+    img = pygame.image.load(url).convert_alpha()
+    img.set_colorkey((0,0,0))
+    egg_images.append(img)
 #Grass
 grasses = []
 grass_loc = []
@@ -250,6 +253,9 @@ water_spawn = True
 #Fab
 fabs = []
 fab_spawn = True
+#Eggs
+eggs = []
+egg_spawn = True
 #Main Game Loop
 while run:
     clock.tick(60)
@@ -266,7 +272,7 @@ while run:
     #Mouse Settings 
     mpos = pygame.mouse.get_pos()
     #Blitting the Map
-    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs = map.blit_map(display, scroll)
+    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs, egg_locs  = map.blit_map(display, scroll)
     #Calculating Scroll
     true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) 
     true_scroll[1] += (player.get_rect().y - true_scroll[1] - 200) 
@@ -274,6 +280,11 @@ while run:
     scroll[0] = int(scroll[0])
     scroll[1] = int(scroll[1])
     #Creating Items
+    if egg_spawn:
+        for loc in egg_locs:
+            random_number = random.randint(0,3)
+            eggs.append(egg.Eggs(loc, egg_images[0].get_width(), egg_images[0].get_height(), egg_images[random_number], random_number))
+        egg_spawn = False
     if fab_spawn:
         for loc in fab_locs:
             fabs.append(fab.Fab(loc, fab_img.get_width(), fab_img.get_height(), fab_img))
@@ -384,6 +395,22 @@ while run:
                     rockets.pop(position)
         p.draw(display, scroll, 0)
         p.update(time, tile_rects)
+    #Drawing Eggs
+    for position, p in sorted(enumerate(eggs) ,reverse=True):
+        if p.get_rect().colliderect(player.get_rect()):
+            if p.get_whoami() == 0:
+                color = (255,242,0)
+            elif p.get_whoami() == 1:
+                color = (109, 49, 110)
+            elif p.get_whoami() == 2:
+                color = (240, 134, 80)
+            else:
+                color = (255,255,255)
+            for x in range(23):
+                sparks.append(spark.Spark([p.get_rect().x - scroll[0] , p.get_rect().y - scroll[1]], math.radians(random.randint(0,360)), random.randint(2,5), color, 2, 2))
+            eggs.pop(position)
+        p.draw(display, scroll)
+        p.update(tile_rects)
     #Drawing enemies
     for position, e in sorted(enumerate(enemies), reverse=True):
         enemy_angle = math.atan2(( (e.get_rect().y - scroll[1]) - (player.get_rect().y - scroll[1])) , ( (e.get_rect().x - scroll[0]) - (player.get_rect().x - scroll[0])))
