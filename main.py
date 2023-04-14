@@ -166,6 +166,11 @@ for x in range(4):
     for y in range(4):
         enemy_costume[str(x+1)][0].append(get_image(idle_spritesheet, y, 15, 20, 1.8, (0,0,0)))
         enemy_costume[str(x+1)][1].append(get_image(run_spritesheet, y, 15, 20, 1.8, (0,0,0)))
+#Eggs
+egg_images = []
+for x in range(4):
+    url = "./Assets/Entities/egg" + str(x+1) + ".png"
+    egg_images.append(pygame.image.load(url).convert_alpha())
 #Grass
 grasses = []
 grass_loc = []
@@ -261,7 +266,7 @@ while run:
     #Mouse Settings 
     mpos = pygame.mouse.get_pos()
     #Blitting the Map
-    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, enemy_locs, shield_locs, water_locs, fab_locs = map.blit_map(display, scroll)
+    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs = map.blit_map(display, scroll)
     #Calculating Scroll
     true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) 
     true_scroll[1] += (player.get_rect().y - true_scroll[1] - 200) 
@@ -289,14 +294,24 @@ while run:
                 grasses.append(g.grass([x_pos, loc[1]+14], 2, 18))
         grass_spawn = False
     if enemy_spawn:           
-        for loc in enemy_locs:
+        for loc in menemy_locs:
             choice = random.randint(1,3)
             cooldown = [0,0]
-            move_choice = random.randint(0,1)
-            if move_choice == 0:
-                move = True
+            move = True
+            if choice == 1:
+                gun = pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
+                cooldown = [1000, 2000]
+            elif choice == 2:
+                gun = smg.SMG(loc, smg_img.get_width(), smg_img.get_height(), smg_img, smg_bullet_img)
+                cooldown = [100, 300]
             else:
-                move = False
+                gun = rocket.Rocket(loc,rocket_img.get_width(), rocket_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img)
+                cooldown = [1000, 2000]
+            enemies.append(enemy.Enemy(loc, enemy_costume["1"][0][0].get_width(), enemy_costume["1"][0][0].get_height(), random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, enemy_costume, str(random.randint(1,4)), move ))
+        for loc in qenemy_locs:
+            choice = random.randint(1,3)
+            cooldown = [0,0]
+            move = False
             if choice == 1:
                 gun = pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
                 cooldown = [1000, 2000]

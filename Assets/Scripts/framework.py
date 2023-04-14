@@ -250,14 +250,15 @@ class Map():
         pistol_loc = []
         smg_loc = []
         rocket_loc = []
-        enemy_loc = []
+        menemy_loc = []
+        qenemy_loc = []
         shield_loc = []
         water_loc = []
         fab_loc = []
         for row in self.map:
             x = 0 
             for element in row:
-                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f":
+                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q":
                     window.blit(self.tiles[int(element)-1], (x * 32 - scroll[0], y * 32 - scroll[1]))
                 if element == "t":
                     window.blit(self.tree, (x * 32 - scroll[0] - 90, y * 32 - scroll[1] - 150))
@@ -273,15 +274,17 @@ class Map():
                     shield_loc.append((x*32,y*32))
                 if element == "w":
                     water_loc.append((x*32,y*32))
-                if element == "e":
-                    enemy_loc.append((x*32,y*32))
+                if element == "m":
+                    menemy_loc.append((x*32,y*32))
+                if element == "q":
+                    qenemy_loc.append((x*32,y*32))
                 if element == "f":
                     fab_loc.append((x*32,y*32))
-                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f":
+                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q":
                     tile_rects.append(pygame.rect.Rect(x*32,y*32,32,32))
                 x += 1
             y += 1
-        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, enemy_loc, shield_loc, water_loc, fab_loc
+        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, menemy_loc, qenemy_loc, shield_loc, water_loc, fab_loc
 
 
 class Glow():
