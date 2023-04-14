@@ -1,6 +1,7 @@
-#TODO -> Add Med Kit and chicken 
+#TODO -> Add chicken 
 #TODO -> Good Level Design
-#TODO -> Complete Inventory Management
+#TODO -> Songs Music
+#TODO -> Add New Gun If Time Allows
 
 import pygame 
 import time as t
