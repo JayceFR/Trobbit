@@ -43,7 +43,7 @@ class Player():
     def draw_health_bar(self, display, health, x, y):
         ratio = health / 100
         pygame.draw.rect(display, (0,0,0), (x - 2, y - 2, 204  , 36//2))
-        pygame.draw.rect(display, (127,127,127), (x, y, 200  , 28//2))
+        pygame.draw.rect(display, (255,255,255), (x, y, 200  , 28//2))
         if health > 50:
             pygame.draw.rect(display, (0,255,0), (x, y, 200 * ratio , 28//2))
         elif health > 25 and health <= 50:
@@ -251,10 +251,11 @@ class Map():
         enemy_loc = []
         shield_loc = []
         water_loc = []
+        fab_loc = []
         for row in self.map:
             x = 0 
             for element in row:
-                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w":
+                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f":
                     window.blit(self.tiles[int(element)-1], (x * 32 - scroll[0], y * 32 - scroll[1]))
                 if element == "t":
                     window.blit(self.tree, (x * 32 - scroll[0] - 90, y * 32 - scroll[1] - 150))
@@ -272,11 +273,13 @@ class Map():
                     water_loc.append((x*32,y*32))
                 if element == "e":
                     enemy_loc.append((x*32,y*32))
-                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w":
+                if element == "f":
+                    fab_loc.append((x*32,y*32))
+                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f":
                     tile_rects.append(pygame.rect.Rect(x*32,y*32,32,32))
                 x += 1
             y += 1
-        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, enemy_loc, shield_loc, water_loc
+        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, enemy_loc, shield_loc, water_loc, fab_loc
 
 
 class Glow():

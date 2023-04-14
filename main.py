@@ -18,6 +18,7 @@ import Assets.Scripts.enemy as enemy
 import Assets.Scripts.bullet as darts
 import Assets.Scripts.shield as shield
 import Assets.Scripts.water as water
+import Assets.Scripts.fab as fab
 pygame.init()
 from pygame.locals import *
 
@@ -54,6 +55,8 @@ def blit_inventory(display, inventory, font, item_dict, item_slot):
             if item_dict[inventory[x]][0] == "Rocket":
                 display.blit(item_dict[inventory[x]][1], (left + 3, 275 + 3.5))
             if item_dict[inventory[x]][0] == "Shield":
+                display.blit(item_dict[inventory[x]][1], (left + 3, 275 + 3.5))
+            if item_dict[inventory[x]][0] == "Fab":
                 display.blit(item_dict[inventory[x]][1], (left + 3, 275 + 3.5))
         left += 25
 
@@ -132,6 +135,8 @@ bullet_img.set_colorkey((255,255,255))
 shield_img = pygame.image.load("./Assets/Entities/shield.png").convert_alpha()
 shield_img = pygame.transform.scale(shield_img, (shield_img.get_width() * 2.5, shield_img.get_height() * 3))
 shield_img.set_colorkey((0,0,0))
+fab_img = pygame.image.load("./Assets/Entities/fab.png").convert_alpha()
+fab_img.set_colorkey((0,0,0))
 smg_bullet_img = pygame.image.load("./Assets/Entities/smg_bullet.png").convert_alpha()
 pistol_logo_img = pistol_img.copy()
 pistol_logo_img = pygame.transform.scale(pistol_logo_img, (pistol_logo_img.get_width()//2, pistol_img.get_height()//2))
@@ -141,6 +146,9 @@ aim_point_img.set_colorkey((255,255,255))
 smg_logo_img = smg_img.copy()
 smg_logo_img = pygame.transform.scale(smg_logo_img, (smg_logo_img.get_width()//2, smg_logo_img.get_height()//2))
 smg_logo_img = pygame.transform.rotate(smg_logo_img, 45)
+fab_logo_img = pygame.image.load("./Assets/Entities/fab.png").convert_alpha()
+fab_logo_img = pygame.transform.scale(fab_logo_img, (fab_logo_img.get_width()//2, fab_logo_img.get_height()//2))
+fab_logo_img = pygame.transform.rotate(fab_logo_img, 45)
 rocket_logo_img = pygame.image.load("./Assets/Entities/rocket.png").convert_alpha()
 rocket_logo_img = pygame.transform.scale(rocket_logo_img, (rocket_logo_img.get_width()//1.5, rocket_logo_img.get_height()//1.5))
 rocket_logo_img = pygame.transform.rotate(rocket_logo_img, 45)
@@ -219,7 +227,7 @@ sparks = []
 smokes = []
 yeagle = pistol.Pistol((35, 45), pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
 #Dictionary Of Items
-item_dict = {"p" : ["Pistol", pistol_logo_img, -2, pistol_img, bullet_img], "s" : ["SMG", smg_logo_img, -2, smg_img, smg_bullet_img], "r" : ["Rocket", rocket_logo_img, -2, rocket_img, rocket_ammo_img], "l" : ["Shield", shield_logo_img, -2, shield_img]}
+item_dict = {"p" : ["Pistol", pistol_logo_img, -2, pistol_img, bullet_img], "s" : ["SMG", smg_logo_img, -2, smg_img, smg_bullet_img], "r" : ["Rocket", rocket_logo_img, -2, rocket_img, rocket_ammo_img], "l" : ["Shield", shield_logo_img, -2, shield_img], "f" : ["Fab", fab_logo_img, -2, fab_img]}
 #Enemy
 enemies = []
 enemy_spawn = True
@@ -233,6 +241,9 @@ shield_spawn = True
 #Water
 waters = []
 water_spawn = True
+#Fab
+fabs = []
+fab_spawn = True
 #Main Game Loop
 while run:
     clock.tick(60)
@@ -249,14 +260,18 @@ while run:
     #Mouse Settings 
     mpos = pygame.mouse.get_pos()
     #Blitting the Map
-    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, enemy_locs, shield_locs, water_locs = map.blit_map(display, scroll)
+    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, enemy_locs, shield_locs, water_locs, fab_locs = map.blit_map(display, scroll)
     #Calculating Scroll
     true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) 
-    true_scroll[1] += (player.get_rect().y - true_scroll[1] - 230) 
+    true_scroll[1] += (player.get_rect().y - true_scroll[1] - 200) 
     scroll = true_scroll.copy()
     scroll[0] = int(scroll[0])
     scroll[1] = int(scroll[1])
     #Creating Items
+    if fab_spawn:
+        for loc in fab_locs:
+            fabs.append(fab.Fab(loc, fab_img.get_width(), fab_img.get_height(), fab_img))
+        fab_spawn = False
     if shield_spawn:
         for loc in shield_locs:
             shields.append(shield.Shield(loc, shield_img.get_width()//1.5, shield_img.get_height(), shield_img))
@@ -455,6 +470,20 @@ while run:
                     shields.pop(position)
         p.update(tile_rects)
         p.draw(display, scroll)
+    #Drawing fabs
+    for position, p in sorted(enumerate(fabs), reverse=True):
+        if p.get_rect().colliderect(player.get_rect()):
+            #pop up e
+            draw_text("E",pick_up_font, (255,255,255), p.get_rect().x - scroll[0] + 16, p.get_rect().y - 16 - scroll[1], display )
+            if key[pygame.K_e]:
+                pos = free_inventory_slot(inventory)
+                if pos != "full" and item_dict["f"][2] < 0:
+                    inventory[pos] = "f"
+                    item_dict["f"][2] = pos
+                    inventory_items[str(pos)] = p
+                    fabs.pop(position)
+        p.draw(display, scroll)
+        p.update(tile_rects)
     #Smg Spray Shoot
     if smg_spray:
         if time - smg_last_update > smg_cooldown:
