@@ -42,16 +42,22 @@ class Player():
     
     def draw_health_bar(self, display, health, x, y):
         ratio = health / 100
-        pygame.draw.rect(display, (255,255,255), (x - 2, y - 2, 204  , 34//2))
-        pygame.draw.rect(display, (255,0,0), (x, y, 200  , 30//2))
-        pygame.draw.rect(display, (255,255,0), (x, y, 200 * ratio , 30//2))
+        pygame.draw.rect(display, (0,0,0), (x - 2, y - 2, 204  , 36//2))
+        pygame.draw.rect(display, (127,127,127), (x, y, 200  , 28//2))
+        if health > 50:
+            pygame.draw.rect(display, (0,255,0), (x, y, 200 * ratio , 28//2))
+        elif health > 25 and health <= 50:
+            pygame.draw.rect(display, (255,255,0), (x, y, 200 * ratio , 28//2))
+        else:
+            pygame.draw.rect(display, (255,0,0), (x, y, 200 * ratio , 28//2))
+
 
     def draw(self, window, scroll):
         self.display_x = self.rect.x
         self.display_y = self.rect.y
         self.rect.x = self.rect.x - scroll[0]
         self.rect.y = self.rect.y - scroll[1]
-        self.draw_health_bar(window, self.health, 0, 0)
+        self.draw_health_bar(window, self.health, 2, 2 )
         #if self.recover:
         #    window.blit(self.land_img, self.rect)
         if not self.moving_left and  not self.moving_right:
