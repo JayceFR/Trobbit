@@ -5,7 +5,7 @@ import Assets.Scripts.bullet as b
 import Assets.Scripts.sparks as sparks
 
 class SMG():
-    def __init__(self, loc, width, height, pistol_img, bullet_img, bullet_count = 30) -> None:
+    def __init__(self, loc, width, height, pistol_img, bullet_img, bullet_count = 50) -> None:
         self.rect = pygame.rect.Rect(loc[0], loc[1], width, height)
         self.dup_x = 0
         self.facing_right = True

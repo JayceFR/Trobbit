@@ -325,13 +325,13 @@ while run:
             cooldown = [0,0]
             move = False
             if choice == 1:
-                gun = pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
+                gun = pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img, 100)
                 cooldown = [1000, 2000]
             elif choice == 2:
                 gun = smg.SMG(loc, smg_img.get_width(), smg_img.get_height(), smg_img, smg_bullet_img)
                 cooldown = [100, 300]
             else:
-                gun = rocket.Rocket(loc,rocket_img.get_width(), rocket_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img)
+                gun = rocket.Rocket(loc,rocket_img.get_width(), rocket_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img, 5)
                 cooldown = [1000, 2000]
             enemies.append(enemy.Enemy(loc, enemy_costume["1"][0][0].get_width(), enemy_costume["1"][0][0].get_height(), random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, enemy_costume, str(random.randint(1,4)), move ))
         enemy_spawn = False
@@ -493,10 +493,14 @@ while run:
             bullet.get_rect().y = bullet_y
         if e.health <= 0:
             if e.get_gun() == "p":
+                e.gun.bullet_count = 20
                 pistols.append(e.gun)
             if e.get_gun() == "r":
+                e.gun.bullet_count = 2
+                e.gun.bullet_in_gun = True
                 rockets.append(e.gun)
             if e.get_gun() == "s":
+                e.gun.bullet_count = 50
                 smgs.append(e.gun)
             e.destroy()
             enemies.pop(position)
