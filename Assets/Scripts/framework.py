@@ -121,6 +121,8 @@ class Player():
 
     def move(self, tiles, time, dt, display, scroll, gun, facing_right, pistol = None, shield = False):
         self.movement = [0, 0]
+        if self.health > 100:
+            self.health = 100
         if (self.moving_left or self.moving_right) and not self.jump:
             #self.speed += self.acceleration
             if self.speed > 8:
@@ -334,9 +336,12 @@ class Enchanted():
         for x in range(5):
             self.circles.append(Circles(loc[0] + random.randint(0,20), loc[1] + random.randint(-20,20), random.randint(2,4), random.randint(1000, 2000), 0.2, (234,63,247), 2, math.radians(random.randint(0,360))))
     
-    def draw(self,time, display, scroll):
+    def draw(self,time, display, scroll, color = None):
         for pos, circle in sorted(enumerate(self.circles), reverse=True):
-            circle.draw(display, scroll)
+            if color == None:
+                circle.draw(display, scroll)
+            else:
+                circle.draw(display, scroll, color)
             circle.move(time)
             if circle.radius < 0:
                 self.circles.pop(pos)
@@ -386,5 +391,8 @@ class Circles():
         self.angle = math.radians(angle)
     
 
-    def draw(self, display, scroll):
-        pygame.draw.circle(display, self.color, (self.x - scroll[0], self.y - scroll[1]),self.radius)
+    def draw(self, display, scroll, color = None):
+        if color == None:
+            pygame.draw.circle(display, self.color, (self.x - scroll[0], self.y - scroll[1]),self.radius)
+        else:
+            pygame.draw.circle(display, color, (self.x - scroll[0], self.y - scroll[1]),self.radius)

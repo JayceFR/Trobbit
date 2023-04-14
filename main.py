@@ -136,6 +136,7 @@ shield_img = pygame.image.load("./Assets/Entities/shield.png").convert_alpha()
 shield_img = pygame.transform.scale(shield_img, (shield_img.get_width() * 2.5, shield_img.get_height() * 3))
 shield_img.set_colorkey((0,0,0))
 fab_img = pygame.image.load("./Assets/Entities/fab.png").convert_alpha()
+fab_img = pygame.transform.scale(fab_img, (fab_img.get_width()*0.75, fab_img.get_height()*0.75))
 fab_img.set_colorkey((0,0,0))
 smg_bullet_img = pygame.image.load("./Assets/Entities/smg_bullet.png").convert_alpha()
 pistol_logo_img = pistol_img.copy()
@@ -483,7 +484,7 @@ while run:
                     inventory_items[str(pos)] = p
                     fabs.pop(position)
         p.draw(display, scroll)
-        p.update(tile_rects)
+        p.update(tile_rects, time, player)
     #Smg Spray Shoot
     if smg_spray:
         if time - smg_last_update > smg_cooldown:
@@ -528,12 +529,20 @@ while run:
             bullet.get_rect().y = bullet_y
     #Enchanted Blitting
     enchanted.update((player.get_rect().x, player.get_rect().y + 30))
-    enchanted.draw(time, display, scroll)
+    if inventory[inven_slot] == "f":
+        if inventory_items[str(inven_slot)].get_use() == True:
+            enchanted.draw(time, display, scroll, (0,230,0))
+        else:
+            enchanted.draw(time, display, scroll)
+    else:
+        enchanted.draw(time, display, scroll)
     #Player Blitting
     if inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
         player.move(tile_rects, time, dt, display, scroll, True, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])
     elif inventory[inven_slot] == "l":
         player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)], True)     
+    elif inventory[inven_slot] == "f":
+        player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])  
     else:
         player.move(tile_rects, time, dt, display, scroll, False, yeagle.facing_direction())
     player.draw(display, scroll)
@@ -545,6 +554,9 @@ while run:
             bullets = inventory_items[str(inven_slot)].update(time, tile_rects)
         if inventory[inven_slot] == "l":
             inventory_items[str(inven_slot)].draw(display, scroll)
+        if inventory[inven_slot] == "f":
+            inventory_items[str(inven_slot)].draw(display, scroll)
+            inventory_items[str(inven_slot)].update(tile_rects, time, player)
     #Sparks Blitting
     for s in sparks:
         s.move(dt)
@@ -567,6 +579,8 @@ while run:
                     smg_spray = True
                 if inventory[inven_slot] == "p" or inventory[inven_slot] == "r":
                     inventory_items[str(inven_slot)].shoot((player_x - scroll[0], player_y - scroll[1]), bullet_img.get_width(), bullet_img.get_height(), angle, time)
+                if inventory[inven_slot] == "f":
+                    inventory_items[str(inven_slot)].use()
             if event.button == 3:
                 if inventory[inven_slot] == "p":
                     inventory[inven_slot] = ""
