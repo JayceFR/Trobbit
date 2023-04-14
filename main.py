@@ -17,6 +17,7 @@ import Assets.Scripts.sparks as spark
 import Assets.Scripts.enemy as enemy
 import Assets.Scripts.bullet as darts
 import Assets.Scripts.shield as shield
+import Assets.Scripts.water as water
 pygame.init()
 from pygame.locals import *
 
@@ -229,6 +230,9 @@ enemy_count = 0
 #Shield
 shields = []
 shield_spawn = True
+#Water
+waters = []
+water_spawn = True
 #Main Game Loop
 while run:
     clock.tick(60)
@@ -245,7 +249,7 @@ while run:
     #Mouse Settings 
     mpos = pygame.mouse.get_pos()
     #Blitting the Map
-    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, enemy_locs, shield_locs = map.blit_map(display, scroll)
+    tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, enemy_locs, shield_locs, water_locs = map.blit_map(display, scroll)
     #Calculating Scroll
     true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) / 5
     true_scroll[1] += (player.get_rect().y - true_scroll[1] - 162) / 5
@@ -257,6 +261,10 @@ while run:
         for loc in shield_locs:
             shields.append(shield.Shield(loc, shield_img.get_width()//1.5, shield_img.get_height(), shield_img))
         shield_spawn = False
+    if water_spawn:
+        for loc in water_locs:
+            waters.append(water.Water(loc[0], loc[1], 32, 32 * 2 - 5, 3))
+        water_spawn = False
     if grass_spawn:
         for loc in grass_loc:
             x_pos = loc[0]
@@ -301,6 +309,8 @@ while run:
         for grass in grasses:
             grass.move()
         grass_last_update = time
+    for w in waters:
+        w.chain_call(display, scroll, player.get_rect(), time)
     #Drawing pistols
     for position, p in sorted(enumerate(pistols), reverse=True):
         if p.get_rect().colliderect(player.get_rect()):
@@ -361,7 +371,7 @@ while run:
                     if bullet.get_gun() == "r":
                         inventory_items[str(inven_slot)].health -= 100
                     else:
-                        inventory_items[str(inven_slot)].health -= 40
+                        inventory_items[str(inven_slot)].health -= 20
                     for x in range(30):
                         if bullet.get_gun() == "r":
                             sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))

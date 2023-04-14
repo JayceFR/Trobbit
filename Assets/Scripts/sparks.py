@@ -33,7 +33,7 @@ class Spark():
         self.angle = math.atan2(movement[1], movement[0])
         # if you want to get more realistic, the speed should be adjusted here
 
-    def move(self, dt):
+    def move(self, dt, reduce = 0.1):
         movement = self.calculate_movement(dt)
         self.loc[0] += movement[0]
         self.loc[1] += movement[1]
@@ -44,9 +44,9 @@ class Spark():
         if self.type == 1:
             self.velocity_adjust(0.975, 0.2, 8, dt)
         if self.type == 2:
-            self.angle += 0.1
+            self.angle += reduce
 
-        self.speed -= 0.1
+        self.speed -= reduce
 
         if self.speed <= 0:
             self.alive = False
