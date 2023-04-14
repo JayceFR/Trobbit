@@ -556,7 +556,11 @@ while run:
             inventory_items[str(inven_slot)].draw(display, scroll)
         if inventory[inven_slot] == "f":
             inventory_items[str(inven_slot)].draw(display, scroll)
-            inventory_items[str(inven_slot)].update(tile_rects, time, player)
+            alive = inventory_items[str(inven_slot)].update(tile_rects, time, player)
+            if not alive:
+                inventory[inven_slot] = ""
+                item_dict["f"][2] = -2
+                inventory_items[str(inven_slot)] = None
     #Sparks Blitting
     for s in sparks:
         s.move(dt)
@@ -601,6 +605,11 @@ while run:
                     inventory[inven_slot] = ""
                     item_dict["l"][2] = -2
                     shields.append(inventory_items[str(inven_slot)])
+                    inventory_items[str(inven_slot)] = None
+                if inventory[inven_slot] == "f":
+                    inventory[inven_slot] = ""
+                    item_dict["f"][2] = -2
+                    fabs.append(inventory_items[str(inven_slot)])
                     inventory_items[str(inven_slot)] = None
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:

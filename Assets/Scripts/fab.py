@@ -58,6 +58,7 @@ class Fab():
             if player.health >= 100:
                 self.alive = False
                 self.in_use = False
+        return self.alive
 
     
     def draw(self, display, scroll):
