@@ -80,7 +80,7 @@ class Molecule():
             self.tension = self.y - 50 
     
     def draw(self, display, scroll):
-        pygame.draw.circle(display, (255,255,255), (self.x - scroll[0], self.y - scroll[1]), self.radius)
+        pygame.draw.circle(display, (15,161,227), (self.x - scroll[0], self.y - scroll[1]), self.radius)
     
     def get_x(self):
         return self.x
@@ -94,32 +94,3 @@ class Molecule():
     def collision(self):
         self.colliding = True
 
-'''display = pygame.display.set_mode((1000,600))
-run = True
-water = Water(250,200,40,50,2)
-click = False
-clock = pygame.time.Clock()
-colliding = False
-collision_cooldown = 200
-collision_last_update = 0
-while run:
-    clock.tick(60)
-    time = pygame.time.get_ticks()
-    display.fill((0,0,0))
-    m_pos = pygame.mouse.get_pos()
-    water.chain_call(display)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                click = True
-    key = pygame.key.get_pressed()
-    if key[pygame.K_SPACE]:
-        if time - collision_last_update > collision_cooldown:
-            colliding = True
-            collision_last_update = time
-    if colliding:
-        water.colliding()
-        colliding = False
-    pygame.display.update()'''

@@ -251,8 +251,8 @@ while run:
     #Blitting the Map
     tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, enemy_locs, shield_locs, water_locs = map.blit_map(display, scroll)
     #Calculating Scroll
-    true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) / 5
-    true_scroll[1] += (player.get_rect().y - true_scroll[1] - 162) / 5
+    true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) 
+    true_scroll[1] += (player.get_rect().y - true_scroll[1] - 230) 
     scroll = true_scroll.copy()
     scroll[0] = int(scroll[0])
     scroll[1] = int(scroll[1])
@@ -458,7 +458,8 @@ while run:
     #Smg Spray Shoot
     if smg_spray:
         if time - smg_last_update > smg_cooldown:
-            inventory_items[str(inven_slot)].shoot((player_x - scroll[0], player_y - scroll[1]), bullet_img.get_width(), bullet_img.get_height(), angle, time)
+            if inventory[inven_slot] == "s":
+                inventory_items[str(inven_slot)].shoot((player_x - scroll[0], player_y - scroll[1]), bullet_img.get_width(), bullet_img.get_height(), angle, time)
             smg_last_update = time   
     #Inventory Calculation
     if key[pygame.K_1]:
@@ -469,8 +470,7 @@ while run:
         inven_slot = 2
     if key[pygame.K_4]:
         inven_slot = 3
-    blit_inventory(display, inventory, inven_font, item_dict, inven_slot)
-    blit_left_inventory(display, inventory, inven_slot, item_dict, inventory_items, left_inven_font )
+    
     if player.right_facing():
         player_x = player.get_rect().x + 22
         player_y = player.get_rect().y + 15
@@ -564,6 +564,8 @@ while run:
                 smg_spray = False
     #Background Particles
     bg_particle_effect.recursive_call(time, display, scroll, dt)
+    blit_inventory(display, inventory, inven_font, item_dict, inven_slot)
+    blit_left_inventory(display, inventory, inven_slot, item_dict, inventory_items, left_inven_font )
     surf = pygame.transform.scale(display, (screen_w, screen_h))
     window.blit(surf, (0, 0))
     pygame.display.flip()
