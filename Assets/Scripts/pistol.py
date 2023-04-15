@@ -113,9 +113,10 @@ class Pistol():
         return self.facing_right
             
 
-    def shoot(self, loc, width, height, angle, time):
+    def shoot(self, loc, width, height, angle, time, music):
         #Creating a bullet
         if self.bullet_count > 0:
+            music.play()
             self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "p", time))
             angle *= -1
             self.recoil = True

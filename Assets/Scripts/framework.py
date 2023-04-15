@@ -3,13 +3,14 @@ import pygame
 import math
 
 class Player():
-    def __init__(self, x,y,width,height, player_img, idle_animation, run_animation, land_img):
+    def __init__(self, x,y,width,height, player_img, idle_animation, run_animation, land_img, music = None):
         self.rect = pygame.Rect(x,y,width,height)
         self.display_x = 0
         self.width = width
         self.life = 0
         self.height = height
         self.alive = True
+        self.music = music
         self.display_y = 0 
         self.moving_left = False
         self.moving_right = False
@@ -176,6 +177,7 @@ class Player():
             if key[pygame.K_SPACE] or key[pygame.K_w]:
                 if not self.jump and self.collision_type['bottom']:
                     if time - self.jump_last_update > self.jump_cooldown:
+                        self.music.play()
                         self.jump = True
                         self.jump_last_update = time
         

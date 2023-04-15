@@ -1,6 +1,5 @@
 #TODO -> Good Level Design
 #TODO -> Songs Music
-#TODO -> Death for player 
 
 import pygame 
 import time as t
@@ -196,6 +195,14 @@ def main(map_loc, player_life, eggs_dropped):
         img = pygame.image.load(url).convert_alpha()
         img.set_colorkey((0,0,0))
         egg_images.append(img)
+    #Music
+    explosion = pygame.mixer.Sound("./Assets/Music/exposion.wav")
+    jump = pygame.mixer.Sound("./Assets/Music/jump.wav")
+    pistol_shoot = pygame.mixer.Sound("./Assets/Music/pistol_shoot.wav")
+    rocket_shoot = pygame.mixer.Sound("./Assets/Music/rocket_shoot.wav")
+    smg_shoot = pygame.mixer.Sound("./Assets/Music/smg_shoot.wav")
+    pickup = pygame.mixer.Sound("./Assets/Music/pickup.wav")
+    pickup.set_volume(0.5)
     #Grass
     grasses = []
     grass_loc = []
@@ -337,10 +344,10 @@ def main(map_loc, player_life, eggs_dropped):
         if player_spawn:
             if map_loc == "load.txt":
                 for loc in player_loc:
-                    player = f.Player(loc[0],loc[1],player_img.get_width(),player_img.get_height(), player_img, player_idle_animation, player_run_animation, player_land_img)
+                    player = f.Player(loc[0],loc[1],player_img.get_width(),player_img.get_height(), player_img, player_idle_animation, player_run_animation, player_land_img, music = jump)
             else:
                 for loc in player_loc:
-                    player = f.Player(loc[0],loc[1],player_idle_animation[0].get_width(),player_idle_animation[0].get_height(), player_img, player_idle_animation, player_run_animation, player_land_img)
+                    player = f.Player(loc[0],loc[1],player_idle_animation[0].get_width(),player_idle_animation[0].get_height(), player_img, player_idle_animation, player_run_animation, player_land_img, music = jump)
             if player_life != -2:
                 player.life = player_life
             player_spawn = False
@@ -384,14 +391,17 @@ def main(map_loc, player_life, eggs_dropped):
                 move = True
                 if choice == 1:
                     gun = pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img)
+                    music = pistol_shoot
                     cooldown = [1000, 2000]
                 elif choice == 2:
                     gun = smg.SMG(loc, smg_img.get_width(), smg_img.get_height(), smg_img, smg_bullet_img)
+                    music = smg_shoot
                     cooldown = [100, 300]
                 else:
                     gun = rocket.Rocket(loc,rocket_img.get_width(), rocket_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img)
+                    music = rocket_shoot
                     cooldown = [1000, 2000]
-                enemies.append(enemy.Enemy(loc, enemy_costume["1"][0][0].get_width(), enemy_costume["1"][0][0].get_height(), random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, enemy_costume, str(random.randint(1,4)), move ))
+                enemies.append(enemy.Enemy(loc, enemy_costume["1"][0][0].get_width(), enemy_costume["1"][0][0].get_height(), random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, enemy_costume, str(random.randint(1,4)), move, music ))
             for loc in qenemy_locs:
                 choice = random.randint(1,3)
                 cooldown = [0,0]
@@ -399,13 +409,16 @@ def main(map_loc, player_life, eggs_dropped):
                 if choice == 1:
                     gun = pistol.Pistol(loc, pistol_img.get_width(), pistol_img.get_height(), pistol_img, bullet_img, 100)
                     cooldown = [1000, 2000]
+                    music = pistol_shoot
                 elif choice == 2:
                     gun = smg.SMG(loc, smg_img.get_width(), smg_img.get_height(), smg_img, smg_bullet_img)
                     cooldown = [100, 300]
+                    music = smg_shoot
                 else:
                     gun = rocket.Rocket(loc,rocket_img.get_width(), rocket_img.get_height(), rocketb_img, rocket_img, rocket_ammo_img, 5)
                     cooldown = [1000, 2000]
-                enemies.append(enemy.Enemy(loc, enemy_costume["1"][0][0].get_width(), enemy_costume["1"][0][0].get_height(), random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, enemy_costume, str(random.randint(1,4)), move ))
+                    music = rocket_shoot
+                enemies.append(enemy.Enemy(loc, enemy_costume["1"][0][0].get_width(), enemy_costume["1"][0][0].get_height(), random.randint(2,7), random.randint(cooldown[0],cooldown[1]), gun, enemy_costume, str(random.randint(1,4)), move, music ))
             enemy_spawn = False
         if rocket_spawn:
             for loc in rocket_locs:
@@ -429,6 +442,7 @@ def main(map_loc, player_life, eggs_dropped):
         #Checking for player death
         if player.alive:
             if player.health <= 0:
+                explosion.play()
                 player.alive = False
                 for x in range(40):
                     sparks.append(spark.Spark([player.get_rect().x - scroll[0] ,player.get_rect().y - scroll[1] ], math.radians(random.randint(0,360)), random.randint(4,7), (255,127,39), 2, 1))
@@ -479,6 +493,7 @@ def main(map_loc, player_life, eggs_dropped):
         for position, p in sorted(enumerate(eggs) ,reverse=True):
             if player.alive:
                 if p.get_rect().colliderect(player.get_rect()):
+                    pickup.play()
                     if p.get_whoami() == 0:
                         color = (255,242,0)
                     elif p.get_whoami() == 1:
@@ -637,7 +652,7 @@ def main(map_loc, player_life, eggs_dropped):
         if smg_spray:
             if time - smg_last_update > smg_cooldown:
                 if inventory[inven_slot] == "s":
-                    inventory_items[str(inven_slot)].shoot((player_x - scroll[0], player_y - scroll[1]), bullet_img.get_width(), bullet_img.get_height(), angle, time)
+                    inventory_items[str(inven_slot)].shoot((player_x - scroll[0], player_y - scroll[1]), bullet_img.get_width(), bullet_img.get_height(), angle, time, smg_shoot)
                 smg_last_update = time   
         #Inventory Calculation
         if key[pygame.K_1]:
@@ -753,8 +768,10 @@ def main(map_loc, player_life, eggs_dropped):
                     #Hold To Fire
                     if inventory[inven_slot] == "s":
                         smg_spray = True
-                    if inventory[inven_slot] == "p" or inventory[inven_slot] == "r":
-                        inventory_items[str(inven_slot)].shoot((player_x - scroll[0], player_y - scroll[1]), bullet_img.get_width(), bullet_img.get_height(), angle, time)
+                    if inventory[inven_slot] == "p":
+                        inventory_items[str(inven_slot)].shoot((player_x - scroll[0], player_y - scroll[1]), bullet_img.get_width(), bullet_img.get_height(), angle, time, pistol_shoot)
+                    if inventory[inven_slot] == "r":
+                        inventory_items[str(inven_slot)].shoot((player_x - scroll[0], player_y - scroll[1]), bullet_img.get_width(), bullet_img.get_height(), angle, time, rocket_shoot)
                     if inventory[inven_slot] == "f":
                         inventory_items[str(inven_slot)].use()
                 if event.button == 3:
@@ -836,6 +853,9 @@ def game():
     clock = pygame.time.Clock()
     start_collide = False
     trial_collide = False
+    pygame.mixer.music.load("./Assets/Music/trobbit_bg.wav")
+    pygame.mixer.music.set_volume(0.2)
+    pygame.mixer.music.play(-1)
     start_rect = pygame.rect.Rect(150, 100, 200, 50)
     practice_rect = pygame.rect.Rect(150, 200, 200, 50)
     main_font = pygame.font.Font("./Assets/Fonts/jayce.ttf", 50)

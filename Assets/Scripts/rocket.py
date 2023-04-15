@@ -121,9 +121,10 @@ class Rocket():
     def get_gun(self):
         return "r" 
 
-    def shoot(self, loc, width, height, angle, time):
+    def shoot(self, loc, width, height, angle, time, music):
         #Creating a bullet
         if self.bullet_in_gun:
+            music.play()
             self.bullets.append(b.Bullet(loc, width, height, self.bullet_img, angle, "r", time, speed = 15, die_time= 1000))
             angle *= -1
             self.recoil = True

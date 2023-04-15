@@ -2,7 +2,7 @@ import random
 import math
 import pygame
 class Enemy():
-    def __init__(self, loc, width, height, speed, shoot_cooldown, gun, enemy_costume, whoami, move = True) -> None:
+    def __init__(self, loc, width, height, speed, shoot_cooldown, gun, enemy_costume, whoami, move = True, music = None) -> None:
         self.loc = loc
         self.width = width
         self.height = height
@@ -23,6 +23,7 @@ class Enemy():
         self.whoami = whoami
         self.start = False
         self.frame = 0
+        self.music = music
         self.frame_last_update = 0
         self.frame_cooldown = 200
         self.facing_right = True
@@ -83,7 +84,7 @@ class Enemy():
                 self.start = True
         if self.start:
             if time - self.shoot_last_update > self.shoot_cooldown:
-                self.gun.shoot((self.gun.rect.x - scroll[0], self.gun.rect.y - scroll[1]), self.gun.bullet_img.get_width(), self.gun.bullet_img.get_height(), angle, time)
+                self.gun.shoot((self.gun.rect.x - scroll[0], self.gun.rect.y - scroll[1]), self.gun.bullet_img.get_width(), self.gun.bullet_img.get_height(), angle, time, self.music)
                 self.shoot_last_update = time
             if self.can_move:
                 self.movement[0] += math.cos(angle) * self.speed

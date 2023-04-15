@@ -112,9 +112,10 @@ class SMG():
         return self.facing_right
             
 
-    def shoot(self, loc, width, height, angle, time):
+    def shoot(self, loc, width, height, angle, time, music):
         #Creating a bullet
         if self.bullet_count > 0:
+            music.play()
             self.bullets.append(b.Bullet(loc, self.bullet_img.get_width(), self.bullet_img.get_height(), self.bullet_img, angle, "s", time))
             angle *= -1
             self.recoil = True
