@@ -856,6 +856,7 @@ def game():
     pygame.mixer.music.load("./Assets/Music/trobbit_bg.wav")
     pygame.mixer.music.set_volume(0.2)
     pygame.mixer.music.play(-1)
+    done = False
     start_rect = pygame.rect.Rect(150, 100, 200, 50)
     practice_rect = pygame.rect.Rect(150, 200, 200, 50)
     main_font = pygame.font.Font("./Assets/Fonts/jayce.ttf", 50)
@@ -881,6 +882,8 @@ def game():
         pygame.draw.rect(display, (0, 0, 230), practice_rect, border_radius=50)
         draw_text("START", main_font, (0,0,0), 185, 95, display)
         draw_text("TRIAL", main_font, (0,0,0), 195, 195, display)
+        if done:
+            draw_text("Game Over", main_font, (0,0,0), 135, 250, display)
         if start_rect.collidepoint(mpos):
             start_collide = True
         if practice_rect.collidepoint(mpos):
@@ -894,6 +897,8 @@ def game():
                         returned = start()
                         if returned == 2:
                             run = False
+                        if returned == "done":
+                            done = True
                     if trial_collide:
                         returned = trial()
         surf = pygame.transform.scale(display, (screen_w, screen_h))
@@ -901,7 +906,7 @@ def game():
         pygame.display.flip()
 
 def start():
-    levels = [ "level2.txt"]
+    levels = ["level1.txt", "level2.txt"]
     current_level = 0
     player_life = -2
     eggs = []
@@ -916,6 +921,7 @@ def start():
             eggs = returned_list[2]
         if returned_list[0] == 4:
             return 
+    return "done"
 
 def trial():
     levels = ["map.txt"]
