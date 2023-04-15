@@ -668,8 +668,8 @@ def main(map_loc, player_life, eggs_dropped):
             #Enchanted Blitting
             enchanted.update((player.get_rect().x, player.get_rect().y + 30))
             if frog_check:
-                if inventory[inven_slot] == "f":
-                    if inventory_items[str(inven_slot)].get_use() == True:
+                if inven_slot != -1 and inventory[inven_slot] == "f":
+                    if inven_slot != -1 or inventory_items.get(str(inven_slot)).get_use() == True:
                         enchanted.draw(time, display, scroll, (0,230,0))
                     else:
                         enchanted.draw(time, display, scroll)
@@ -677,11 +677,11 @@ def main(map_loc, player_life, eggs_dropped):
                     enchanted.draw(time, display, scroll)
             #Player Blitting
             if not map_loc == "load.txt":
-                if inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
+                if inven_slot != -1 and inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
                     player.move(tile_rects, time, dt, display, scroll, True, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])
-                elif inventory[inven_slot] == "l":
+                elif inven_slot != -1 and inventory[inven_slot] == "l":
                     player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)], True)     
-                elif inventory[inven_slot] == "f":
+                elif inven_slot != -1 and inventory[inven_slot] == "f":
                     player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])  
                 else:
                     player.move(tile_rects, time, dt, display, scroll, False, yeagle.facing_direction())
@@ -799,7 +799,59 @@ def game():
     #1 -> Failure
     #2 -> Exit
     #levels = ["load.txt", "map.txt"]
-    levels = ["level1.txt"]
+    
+    run = True
+    glow_effects = []
+    bg1 = backg.background()
+    clock = pygame.time.Clock()
+    start_collide = False
+    trial_collide = False
+    start_rect = pygame.rect.Rect(150, 100, 200, 50)
+    practice_rect = pygame.rect.Rect(150, 200, 200, 50)
+    main_font = pygame.font.Font("./Assets/Fonts/jayce.ttf", 50)
+    main_screen_img = pygame.image.load("./Assets/Entities/main_screen.png").convert_alpha()
+    main_screen_img = pygame.transform.scale(main_screen_img, (main_screen_img.get_width()//4, main_screen_img.get_height()//4))
+    for x in range(150):
+        glow_effects.append(f.Glow((random.randint(-1000, 3000), random.randint(-100,700))))
+    while run:
+        clock.tick(60)
+        time = pygame.time.get_ticks()
+        pygame.mouse.set_visible(True)
+        mpos = list(pygame.mouse.get_pos())
+        mpos[0] = mpos[0]//2
+        mpos[1] = mpos[1]//2
+        start_collide = False
+        trial_collide = False
+        display.fill((157,225,255))
+        for glow_effect in glow_effects:
+            glow_effect.update(time, display, [0,0])
+        bg1.recursive_call(display)
+        display.blit(main_screen_img, (180,0))
+        pygame.draw.rect(display, (255, 174, 201), start_rect, border_radius=50)
+        pygame.draw.rect(display, (0, 0, 230), practice_rect, border_radius=50)
+        draw_text("START", main_font, (0,0,0), 185, 95, display)
+        draw_text("TRIAL", main_font, (0,0,0), 195, 195, display)
+        if start_rect.collidepoint(mpos):
+            start_collide = True
+        if practice_rect.collidepoint(mpos):
+            trial_collide = True
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if start_collide:
+                        returned = start()
+                        if returned == 2:
+                            run = False
+                    if trial_collide:
+                        print("Collided")
+        surf = pygame.transform.scale(display, (screen_w, screen_h))
+        window.blit(surf, (0, 0))
+        pygame.display.flip()
+
+def start():
+    levels = ["level1.txt", "level2.txt"]
     current_level = 0
     player_life = -2
     eggs = []
@@ -808,11 +860,11 @@ def game():
         if returned_list[0] == 0:
             current_level += 1
         if returned_list[0] == 2:
-            break
+            return 2
         if returned_list[0] == 3:
             player_life = returned_list[1]
             eggs = returned_list[2]
         if returned_list[0] == 4:
-            current_level = 1
+            return 
 
 game()
