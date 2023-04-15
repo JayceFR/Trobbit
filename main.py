@@ -76,7 +76,8 @@ def blit_left_inventory(display, inventory, inven_slot, item_dict, inventory_ite
             flip = pygame.transform.scale(flip, (flip.get_width()*1.2, flip.get_height()*1.2))
         flip = pygame.transform.rotate(flip, 90)
         display.blit(flip, (50, 275))
-        draw_text(str(inventory_items[str(inven_slot)].get_bullet_count()), font, (255,255,255), 70, 265, display )
+        if inven_slot != -1:
+            draw_text(str(inventory_items[str(inven_slot)].get_bullet_count()), font, (255,255,255), 70, 265, display )
     if inventory[inven_slot] == "l":
         display.blit(item_dict[inventory[inven_slot]][3], (0, 275))
         inventory_items[str(inven_slot)].draw_health_bar(display, 50, 290)
@@ -109,7 +110,7 @@ def main(map_loc, player_life, eggs_dropped):
         tiles.append(tile_dup)
     player_img = pygame.image.load("./Assets/Sprites/player_img.png").convert_alpha()
     player_img = pygame.transform.scale(player_img, (player_img.get_width() * 3, player_img.get_height() * 3))
-    player_img.set_colorkey((0,0,0))
+    player_img.set_colorkey((34,177,76))
     player_idle_img = pygame.image.load("./Assets/Sprites/player_idle.png").convert_alpha()
     player_run_img = pygame.image.load("./Assets/Sprites/player_run.png").convert_alpha()
     player_land_img_copy = pygame.image.load("./Assets/Sprites/player_land.png").convert_alpha()
@@ -118,7 +119,7 @@ def main(map_loc, player_life, eggs_dropped):
     player_land_img.set_colorkey((0,0,0))
     player_load_img = pygame.image.load("./Assets/Sprites/player.png").convert_alpha()
     player_load_img = pygame.transform.scale(player_load_img, (player_load_img.get_width()*3, player_load_img.get_height()*3))
-    player_load_img.set_colorkey((0,0,0))
+    player_load_img.set_colorkey((68,40,59))
     tree_img_copy = pygame.image.load("./Assets/Sprites/tree.png").convert_alpha()
     tree_img = tree_img_copy.copy()
     tree_img = pygame.transform.scale(tree_img_copy, (tree_img_copy.get_width()*3.5, tree_img_copy.get_height()*2.7))
@@ -299,7 +300,7 @@ def main(map_loc, player_life, eggs_dropped):
     for x in range(4):
         chciken_idle_animation.append(get_image(chicken_idle_spritesheet, x, 12, 12, 2, (0,0,0)))
     #Speech
-    speech = ["I have finally chosen my Champion", "You are No Longer A RABBIT", "              You are my TROBBIT", "              You are my TROBBIT", "Retrieve my EGGS from the humans", "They PAINT it, EAT it, OMELET it", "          You are the chosen one", "          You are the chosen one"]
+    speech = ["I have finally chosen my Champion", "You are No Longer A RABBIT", "              You are my TROBBIT", "              You are my TROBBIT", "Retrieve my EGGS from the humans", "They PAINT it, EAT it, OMELETTE it", "          You are the chosen one", "          You are the chosen one"]
     speech_last_update = 0
     speech_cooldown = 2200
     current_in_speech = 0
@@ -702,7 +703,7 @@ def main(map_loc, player_life, eggs_dropped):
                     enchanted.draw(time, display, scroll)
             #Player Blitting
             if not map_loc == "load.txt":
-                if inven_slot != -1 and inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
+                if inven_slot != -1 and (inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r"):
                     player.move(tile_rects, time, dt, display, scroll, True, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])
                 elif inven_slot != -1 and inventory[inven_slot] == "l":
                     player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)], True)     
@@ -906,7 +907,7 @@ def game():
         pygame.display.flip()
 
 def start():
-    levels = ["level1.txt", "level2.txt"]
+    levels = ["load.txt","level1.txt", "level2.txt"]
     current_level = 0
     player_life = -2
     eggs = []
