@@ -782,6 +782,12 @@ def main(map_loc, player_life, eggs_dropped):
         for x in range(lives - player.life):
             display.blit(player_head_img, (left, 0))
             left += 40
+        display.blit(egg_images[2], (0, 30))
+        text = str(len(collected_eggs)) + "/" + str(len(eggs) + len(collected_eggs))
+        draw_text(text, left_inven_font, (255,255,255), 22, 30, display)
+        #Checking if won 
+        if len(eggs) == 0 and map_loc != "load.txt":
+            return [0]
         blit_inventory(display, inventory, inven_font, item_dict, inven_slot)
         blit_left_inventory(display, inventory, inven_slot, item_dict, inventory_items, left_inven_font )
         surf = pygame.transform.scale(display, (screen_w, screen_h))
@@ -792,7 +798,8 @@ def game():
     #O -> success
     #1 -> Failure
     #2 -> Exit
-    levels = ["load.txt", "map.txt"]
+    #levels = ["load.txt", "map.txt"]
+    levels = ["level1.txt"]
     current_level = 0
     player_life = -2
     eggs = []
