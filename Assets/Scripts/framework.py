@@ -52,7 +52,7 @@ class Player():
             pygame.draw.rect(display, (255,0,0), (x, y, 200 * ratio , 28//2))
 
 
-    def draw(self, window, scroll):
+    def draw(self, window, scroll, img = None):
         self.display_x = self.rect.x
         self.display_y = self.rect.y
         self.rect.x = self.rect.x - scroll[0]
@@ -60,31 +60,34 @@ class Player():
         self.draw_health_bar(window, self.health, 2, 2 )
         #if self.recover:
         #    window.blit(self.land_img, self.rect)
-        if not self.moving_left and  not self.moving_right:
-            if self.facing_right:
-                if self.recover:
-                    window.blit(self.land_img, self.rect)
-                else:
-                    window.blit(self.idle_animation[self.frame], self.rect)
-
-            else:
-                if self.recover:
-                    flip = self.land_img.copy()
-                    flip = pygame.transform.flip(self.land_img, True, False)
-                    flip.set_colorkey((0,0,0))
-                else:
-                    flip = self.idle_animation[self.frame].copy()
-                    flip = pygame.transform.flip(self.idle_animation[self.frame], True, False)
-                    flip.set_colorkey((0,0,0))
-                window.blit(flip, self.rect)
+        if img != None:
+            window.blit(img, self.rect)
         else:
-            if self.facing_right:
-                window.blit(self.run_animation[self.frame], self.rect)
+            if not self.moving_left and  not self.moving_right:
+                if self.facing_right:
+                    if self.recover:
+                        window.blit(self.land_img, self.rect)
+                    else:
+                        window.blit(self.idle_animation[self.frame], self.rect)
+
+                else:
+                    if self.recover:
+                        flip = self.land_img.copy()
+                        flip = pygame.transform.flip(self.land_img, True, False)
+                        flip.set_colorkey((0,0,0))
+                    else:
+                        flip = self.idle_animation[self.frame].copy()
+                        flip = pygame.transform.flip(self.idle_animation[self.frame], True, False)
+                        flip.set_colorkey((0,0,0))
+                    window.blit(flip, self.rect)
             else:
-                flip = self.run_animation[self.frame].copy()
-                flip = pygame.transform.flip(self.run_animation[self.frame], True, False)
-                flip.set_colorkey((0,0,0))
-                window.blit(flip, self.rect)
+                if self.facing_right:
+                    window.blit(self.run_animation[self.frame], self.rect)
+                else:
+                    flip = self.run_animation[self.frame].copy()
+                    flip = pygame.transform.flip(self.run_animation[self.frame], True, False)
+                    flip.set_colorkey((0,0,0))
+                    window.blit(flip, self.rect)
         
         #pygame.draw.rect(window, (255,255,0), self.rect)
         self.rect.x = self.display_x
@@ -119,7 +122,7 @@ class Player():
                 collision_types["top"] = True
         return collision_types
 
-    def move(self, tiles, time, dt, display, scroll, gun, facing_right, pistol = None, shield = False):
+    def move(self, tiles, time, dt, display, scroll, gun, facing_right, pistol = None, shield = False, can_move = True):
         self.movement = [0, 0]
         if self.health > 100:
             self.health = 100
@@ -163,15 +166,16 @@ class Player():
             self.frame_last_update = time
 
         key = pygame.key.get_pressed()
-        if key[pygame.K_LEFT] or key[pygame.K_a]:
-            self.moving_left = True
-        if key[pygame.K_RIGHT] or key[pygame.K_d]:
-            self.moving_right = True
-        if key[pygame.K_SPACE] or key[pygame.K_w]:
-            if not self.jump and self.collision_type['bottom']:
-                if time - self.jump_last_update > self.jump_cooldown:
-                    self.jump = True
-                    self.jump_last_update = time
+        if can_move:
+            if key[pygame.K_LEFT] or key[pygame.K_a]:
+                self.moving_left = True
+            if key[pygame.K_RIGHT] or key[pygame.K_d]:
+                self.moving_right = True
+            if key[pygame.K_SPACE] or key[pygame.K_w]:
+                if not self.jump and self.collision_type['bottom']:
+                    if time - self.jump_last_update > self.jump_cooldown:
+                        self.jump = True
+                        self.jump_last_update = time
         
         if not self.jump:
             self.movement[1] += self.gravity
@@ -256,10 +260,11 @@ class Map():
         water_loc = []
         fab_loc = []
         egg_loc = []
+        player_loc = []
         for row in self.map:
             x = 0 
             for element in row:
-                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q" and element != "e":
+                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q" and element != "e" and element != "x":
                     window.blit(self.tiles[int(element)-1], (x * 32 - scroll[0], y * 32 - scroll[1]))
                 if element == "t":
                     window.blit(self.tree, (x * 32 - scroll[0] - 90, y * 32 - scroll[1] - 150))
@@ -283,11 +288,13 @@ class Map():
                     qenemy_loc.append((x*32,y*32))
                 if element == "f":
                     fab_loc.append((x*32,y*32))
-                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q" and element != "e":
+                if element == "x":
+                    player_loc.append((x*32, y*32))
+                if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q" and element != "e" and element != "x":
                     tile_rects.append(pygame.rect.Rect(x*32,y*32,32,32))
                 x += 1
             y += 1
-        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, menemy_loc, qenemy_loc, shield_loc, water_loc, fab_loc, egg_loc
+        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, menemy_loc, qenemy_loc, shield_loc, water_loc, fab_loc, egg_loc, player_loc
 
 
 class Glow():
