@@ -111,6 +111,8 @@ def main(map_loc):
         tile_dup = pygame.transform.scale(tile_dup, (32,32))
         tiles.append(tile_dup)
     player_img = pygame.image.load("./Assets/Sprites/player_img.png").convert_alpha()
+    player_img = pygame.transform.scale(player_img, (player_img.get_width() * 3, player_img.get_height() * 3))
+    player_img.set_colorkey((0,0,0))
     player_idle_img = pygame.image.load("./Assets/Sprites/player_idle.png").convert_alpha()
     player_run_img = pygame.image.load("./Assets/Sprites/player_run.png").convert_alpha()
     player_land_img_copy = pygame.image.load("./Assets/Sprites/player_land.png").convert_alpha()
@@ -118,7 +120,7 @@ def main(map_loc):
     player_land_img = pygame.transform.scale(player_land_img_copy, (player_land_img_copy.get_width() * 1.2, player_land_img_copy.get_height() * 1.27))
     player_land_img.set_colorkey((0,0,0))
     player_load_img = pygame.image.load("./Assets/Sprites/player.png").convert_alpha()
-    player_load_img = pygame.transform.scale(player_load_img, (player_load_img.get_width()*1.2, player_load_img.get_height()*1.2))
+    player_load_img = pygame.transform.scale(player_load_img, (player_load_img.get_width()*3, player_load_img.get_height()*3))
     player_load_img.set_colorkey((0,0,0))
     tree_img_copy = pygame.image.load("./Assets/Sprites/tree.png").convert_alpha()
     tree_img = tree_img_copy.copy()
@@ -165,6 +167,8 @@ def main(map_loc):
     shield_logo_img = pygame.transform.scale(shield_logo_img, (shield_logo_img.get_width() * 1, shield_logo_img.get_height() * 1))
     shield_logo_img = pygame.transform.rotate(shield_logo_img, 45)
     chicken_idle_spritesheet = pygame.image.load("./Assets/Sprites/chicken_idle.png").convert_alpha()
+    chicken_img = pygame.image.load("./Assets/Sprites/chicken.png").convert_alpha()
+    chicken_img.set_colorkey((0,0,0))
     #Enemy animations
     enemy_costume = {'1' : [[], []], '2' : [[], []], '3' : [[], []], '4' : [[], []]}
     for x in range(4):
@@ -272,6 +276,14 @@ def main(map_loc):
     chciken_idle_animation = []
     for x in range(4):
         chciken_idle_animation.append(get_image(chicken_idle_spritesheet, x, 12, 12, 2, (0,0,0)))
+    #Speech
+    speech = ["I have finally chosen my Champion", "You are No Longer A RABBIT", "              You are my TROBBIT", "              You are my TROBBIT", "Retrieve my EGGS from the humans", "They PAINT it, EAT it, OMELET it", "          You are the chosen one", "          You are the chosen one"]
+    speech_last_update = 0
+    speech_cooldown = 2200
+    current_in_speech = 0
+    frog_check = True
+    if map_loc == "load.txt":
+        frog_check = False
     #Main Game Loop
     while run:
         clock.tick(60)
@@ -282,7 +294,7 @@ def main(map_loc):
         time = pygame.time.get_ticks()
         if map_loc == "load.txt":
             display.fill((157,225,255))
-            points = [[0,0], [500, 0], [250,150]]
+            points = [[0,0], [500, 0], [250,200]]
             pygame.draw.polygon(display, (255,206,14), points )
             if time - chicken_last_update > chicken_cooldown:
                 chicken_last_update = time
@@ -303,10 +315,17 @@ def main(map_loc):
         tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs, egg_locs, player_loc  = map.blit_map(display, scroll)
         #Calculating Scroll
         if player_spawn:
-            for loc in player_loc:
-                player = f.Player(loc[0],loc[1],player_idle_animation[0].get_width(),player_idle_animation[0].get_height(), player_img, player_idle_animation, player_run_animation, player_land_img)
+            if map_loc == "load.txt":
+                for loc in player_loc:
+                    player = f.Player(loc[0],loc[1],player_img.get_width(),player_img.get_height(), player_img, player_idle_animation, player_run_animation, player_land_img)
+            else:
+                for loc in player_loc:
+                    player = f.Player(loc[0],loc[1],player_idle_animation[0].get_width(),player_idle_animation[0].get_height(), player_img, player_idle_animation, player_run_animation, player_land_img)
             player_spawn = False
-        true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) 
+        if map_loc == "load.txt":
+            true_scroll[0] += (player.get_rect().x - true_scroll[0] - 222) 
+        else:
+            true_scroll[0] += (player.get_rect().x - true_scroll[0] - 262) 
         true_scroll[1] += (player.get_rect().y - true_scroll[1] - 200) 
         scroll = true_scroll.copy()
         scroll[0] = int(scroll[0])
@@ -613,7 +632,7 @@ def main(map_loc):
                 bullet.get_rect().y = bullet_y
         #Enchanted Blitting
         enchanted.update((player.get_rect().x, player.get_rect().y + 30))
-        if map_loc != "load.txt":
+        if frog_check:
             if inventory[inven_slot] == "f":
                 if inventory_items[str(inven_slot)].get_use() == True:
                     enchanted.draw(time, display, scroll, (0,230,0))
@@ -636,7 +655,19 @@ def main(map_loc):
         if not map_loc == "load.txt":
             player.draw(display, scroll)
         else:
-            player.draw(display, scroll, player_load_img)
+            if frog_check:
+                player.draw(display, scroll, player_img)
+            else:
+                player.draw(display, scroll, player_load_img)
+            if time - speech_last_update > speech_cooldown:
+                if current_in_speech < len(speech) - 1:
+                    current_in_speech += 1
+                else:
+                    return 0
+                speech_last_update = time
+            if speech[current_in_speech] == "              You are my TROBBIT":
+                frog_check = True
+            draw_text(speech[current_in_speech], left_inven_font, (84,171,36), 20,140,display )
         #Blitting Items After Blitting The Player
         blit_grass(grasses, display, scroll, player)
         if inventory_items.get(str(inven_slot)) != None:
@@ -659,12 +690,17 @@ def main(map_loc):
         #Smoke Blitting
         for s in smokes:
             s.draw(display, scroll,time)
+        if map_loc == "load.txt":
+            display.blit(chicken_img, (150, 0))
+            for x in range(20):
+                smokes.append(f.Smoke((random.randint(230,260) + scroll[0], random.randint(0,100) + scroll[1]), (234,63,247)))
         #Mouse Blitting
         #pygame.draw.circle(display,(200,0,0), (mpos[0]//2, mpos[1]//2), 4)
         display.blit(aim_point_img, (mpos[0]//2 + aim_point_img.get_width()//2 - 15, mpos[1]//2 - 15 + aim_point_img.get_height()//2))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                return 2
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     #Normal Click To Shoot
@@ -712,4 +748,18 @@ def main(map_loc):
         surf = pygame.transform.scale(display, (screen_w, screen_h))
         window.blit(surf, (0, 0))
         pygame.display.flip()
-main("load.txt")
+
+def game():
+    #O -> success
+    #1 -> Failure
+    #2 -> Exit
+    levels = ["load.txt", "map.txt"]
+    current_level = 0
+    while current_level < len(levels):
+        returned_value = main(levels[current_level])
+        if returned_value == 0:
+            current_level += 1
+        if returned_value == 2:
+            break
+
+game()
