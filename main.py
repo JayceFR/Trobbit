@@ -1,7 +1,5 @@
-#TODO -> Add chicken 
 #TODO -> Good Level Design
 #TODO -> Songs Music
-#TODO -> Add New Gun If Time Allows
 #TODO -> Death for player 
 
 import pygame 
@@ -99,7 +97,7 @@ screen_h = 600
 window = pygame.display.set_mode((screen_w,screen_h))
 display = pygame.Surface((screen_w//2, screen_h//2))
 pygame.display.set_caption("TROBBIT")
-def main(map_loc):
+def main(map_loc, player_life, eggs_dropped):
     #Game Attributes
     run = True
     clock = pygame.time.Clock()
@@ -169,6 +167,8 @@ def main(map_loc):
     chicken_idle_spritesheet = pygame.image.load("./Assets/Sprites/chicken_idle.png").convert_alpha()
     chicken_img = pygame.image.load("./Assets/Sprites/chicken.png").convert_alpha()
     chicken_img.set_colorkey((0,0,0))
+    player_head_img = pygame.image.load("./Assets/Sprites/player_head.png").convert_alpha()
+    player_head_img.set_colorkey((0,0,0))
     #Enemy animations
     enemy_costume = {'1' : [[], []], '2' : [[], []], '3' : [[], []], '4' : [[], []]}
     for x in range(4):
@@ -267,8 +267,13 @@ def main(map_loc):
     fabs = []
     fab_spawn = True
     #Eggs
-    eggs = []
-    egg_spawn = True
+    if eggs_dropped != []:
+        eggs = eggs_dropped
+        egg_spawn = False
+    else:
+        egg_spawn = True
+        eggs = []
+    collected_eggs = []
     #Chickens 
     chickens = []
     chicken_last_update = 0
@@ -284,6 +289,11 @@ def main(map_loc):
     frog_check = True
     if map_loc == "load.txt":
         frog_check = False
+    #Death 
+    death_cooldown = 1000
+    death_last_update = 0
+    lives = 3
+    life_blit_left = 400
     #Main Game Loop
     while run:
         clock.tick(60)
@@ -321,6 +331,8 @@ def main(map_loc):
             else:
                 for loc in player_loc:
                     player = f.Player(loc[0],loc[1],player_idle_animation[0].get_width(),player_idle_animation[0].get_height(), player_img, player_idle_animation, player_run_animation, player_land_img)
+            if player_life != -2:
+                player.life = player_life
             player_spawn = False
         if map_loc == "load.txt":
             true_scroll[0] += (player.get_rect().x - true_scroll[0] - 222) 
@@ -404,6 +416,13 @@ def main(map_loc):
             grass_last_update = time
         for w in waters:
             w.chain_call(display, scroll, player.get_rect(), time)
+        #Checking for player death
+        if player.alive:
+            if player.health <= 0:
+                player.alive = False
+                for x in range(40):
+                    sparks.append(spark.Spark([player.get_rect().x - scroll[0] ,player.get_rect().y - scroll[1] ], math.radians(random.randint(0,360)), random.randint(4,7), (255,127,39), 2, 1))
+                death_last_update = time
         #Drawing pistols
         for position, p in sorted(enumerate(pistols), reverse=True):
             if p.get_rect().colliderect(player.get_rect()):
@@ -448,18 +467,20 @@ def main(map_loc):
             p.update(time, tile_rects)
         #Drawing Eggs
         for position, p in sorted(enumerate(eggs) ,reverse=True):
-            if p.get_rect().colliderect(player.get_rect()):
-                if p.get_whoami() == 0:
-                    color = (255,242,0)
-                elif p.get_whoami() == 1:
-                    color = (109, 49, 110)
-                elif p.get_whoami() == 2:
-                    color = (240, 134, 80)
-                else:
-                    color = (255,255,255)
-                for x in range(23):
-                    sparks.append(spark.Spark([p.get_rect().x - scroll[0] , p.get_rect().y - scroll[1]], math.radians(random.randint(0,360)), random.randint(2,5), color, 2, 2))
-                eggs.pop(position)
+            if player.alive:
+                if p.get_rect().colliderect(player.get_rect()):
+                    if p.get_whoami() == 0:
+                        color = (255,242,0)
+                    elif p.get_whoami() == 1:
+                        color = (109, 49, 110)
+                    elif p.get_whoami() == 2:
+                        color = (240, 134, 80)
+                    else:
+                        color = (255,255,255)
+                    for x in range(23):
+                        sparks.append(spark.Spark([p.get_rect().x - scroll[0] , p.get_rect().y - scroll[1]], math.radians(random.randint(0,360)), random.randint(2,5), color, 2, 2))
+                    collected_eggs.append(p)
+                    eggs.pop(position)
             p.draw(display, scroll)
             p.update(tile_rects)
         #Drawing chickens
@@ -469,97 +490,111 @@ def main(map_loc):
             if p.get_rect().y > 500:
                 chickens.pop(position)
         #Drawing enemies
-        for position, e in sorted(enumerate(enemies), reverse=True):
-            enemy_angle = math.atan2(( (e.get_rect().y - scroll[1]) - (player.get_rect().y - scroll[1])) , ( (e.get_rect().x - scroll[0]) - (player.get_rect().x - scroll[0])))
-            enemy_angle = math.pi - enemy_angle
-            enemy_bullets = e.move(enemy_angle, time, tile_rects, scroll, (player.get_rect().x, player.get_rect().y))
-            e.draw(display, scroll, enemy_angle)
-            #Checking for collisions with player
-            for bullet in enemy_bullets:
-                bullet_x = bullet.get_rect().x
-                bullet_y = bullet.get_rect().y
-                bullet.get_rect().x += scroll[0]
-                bullet.get_rect().y += scroll[1]
-                if inventory[inven_slot] == "l":
-                    if inventory_items[str(inven_slot)].get_rect().colliderect(bullet.get_rect()):
-                        bullet.alive = False
-                        if bullet.get_gun() == "r":
-                            inventory_items[str(inven_slot)].health -= 100
-                        else:
-                            inventory_items[str(inven_slot)].health -= 20
-                        for x in range(30):
+        if player.alive:
+            for position, e in sorted(enumerate(enemies), reverse=True):
+                enemy_angle = math.atan2(( (e.get_rect().y - scroll[1]) - (player.get_rect().y - scroll[1])) , ( (e.get_rect().x - scroll[0]) - (player.get_rect().x - scroll[0])))
+                enemy_angle = math.pi - enemy_angle
+                enemy_bullets = e.move(enemy_angle, time, tile_rects, scroll, (player.get_rect().x, player.get_rect().y))
+                e.draw(display, scroll, enemy_angle)
+                #Checking for collisions with player
+                for bullet in enemy_bullets:
+                    bullet_x = bullet.get_rect().x
+                    bullet_y = bullet.get_rect().y
+                    bullet.get_rect().x += scroll[0]
+                    bullet.get_rect().y += scroll[1]
+                    if inventory[inven_slot] == "l":
+                        if inventory_items[str(inven_slot)].get_rect().colliderect(bullet.get_rect()):
+                            bullet.alive = False
                             if bullet.get_gun() == "r":
-                                sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
+                                inventory_items[str(inven_slot)].health -= 100
                             else:
-                                smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
-                if bullet.get_rect().colliderect(player.get_rect()):
-                    if bullet.alive:
+                                inventory_items[str(inven_slot)].health -= 20
+                            for x in range(30):
+                                if bullet.get_gun() == "r":
+                                    sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
+                                else:
+                                    smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
+                    if bullet.get_rect().colliderect(player.get_rect()):
+                        if bullet.alive:
+                            if bullet.get_gun() == "r":
+                                player.health -= 70
+                            else:
+                                player.health -= 10
+                            scroll[0] += random.randint(-20,20)
+                            scroll[1] += random.randint(-20,20)
+                            for x in range(30):
+                                if bullet.get_gun() == "r":
+                                    scroll[0] += random.randint(-50,50)
+                                    scroll[1] += random.randint(-50, 50)
+                                    sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,103,20 ), 2, 1))
+                                else:
+                                    smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1]), (120,0,0)))
+                                #sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
+                        bullet.alive = False
+                    for tile in tile_rects:
+                        if tile.colliderect(bullet.get_rect()):
+                            bullet.alive = False
+                            for x in range(30):
+                                if bullet.get_gun() == "r":
+                                    sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
+                                else:
+                                    smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
+                    bullet.get_rect().x = bullet_x
+                    bullet.get_rect().y = bullet_y
+                for bullet in bullets:
+                    bullet_x = bullet.get_rect().x
+                    bullet_y = bullet.get_rect().y
+                    bullet.get_rect().x += scroll[0]
+                    bullet.get_rect().y += scroll[1]
+                    if bullet.get_rect().colliderect(e.get_rect()):
                         if bullet.get_gun() == "r":
-                            player.health -= 70
-                        else:
-                            player.health -= 10
-                        scroll[0] += random.randint(-20,20)
-                        scroll[1] += random.randint(-20,20)
+                            scroll[0] += random.randint(-50,50)
+                            scroll[1] += random.randint(-50, 50)
+                            e.health -= 110
+                        if bullet.get_gun() == "p":
+                            scroll[0] += random.randint(-20,20)
+                            scroll[1] += random.randint(-20,20)
+                            e.health -= 30
+                        if bullet.get_gun() == "s":
+                            scroll[0] += random.randint(-20,20)
+                            scroll[1] += random.randint(-20,20)
+                            e.health -= 10
                         for x in range(30):
                             if bullet.get_gun() == "r":
-                                scroll[0] += random.randint(-50,50)
-                                scroll[1] += random.randint(-50, 50)
+                                bullets.append(darts.Bullet((bullet_x, bullet_y), 30, 30, bullet_img, 0, "s", time, True))
                                 sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,103,20 ), 2, 1))
                             else:
-                                smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1]), (120,0,0)))
-                            #sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
-                    bullet.alive = False
-                for tile in tile_rects:
-                    if tile.colliderect(bullet.get_rect()):
+                                #sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
+                                smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1]), (200, 0,  0)))
                         bullet.alive = False
-                        for x in range(30):
-                            if bullet.get_gun() == "r":
-                                sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
-                            else:
-                                smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
-                bullet.get_rect().x = bullet_x
-                bullet.get_rect().y = bullet_y
-            for bullet in bullets:
-                bullet_x = bullet.get_rect().x
-                bullet_y = bullet.get_rect().y
-                bullet.get_rect().x += scroll[0]
-                bullet.get_rect().y += scroll[1]
-                if bullet.get_rect().colliderect(e.get_rect()):
-                    if bullet.get_gun() == "r":
-                        scroll[0] += random.randint(-50,50)
-                        scroll[1] += random.randint(-50, 50)
-                        e.health -= 110
-                    if bullet.get_gun() == "p":
-                        scroll[0] += random.randint(-20,20)
-                        scroll[1] += random.randint(-20,20)
-                        e.health -= 30
-                    if bullet.get_gun() == "s":
-                        scroll[0] += random.randint(-20,20)
-                        scroll[1] += random.randint(-20,20)
-                        e.health -= 10
-                    for x in range(30):
-                        if bullet.get_gun() == "r":
-                            bullets.append(darts.Bullet((bullet_x, bullet_y), 30, 30, bullet_img, 0, "s", time, True))
-                            sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,103,20 ), 2, 1))
-                        else:
-                            #sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(2,7), (255,103,20), 0.5, 1))
-                            smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1]), (200, 0,  0)))
-                    bullet.alive = False
-                bullet.get_rect().x = bullet_x
-                bullet.get_rect().y = bullet_y
-            if e.health <= 0:
-                if e.get_gun() == "p":
-                    e.gun.bullet_count = 20
-                    pistols.append(e.gun)
-                if e.get_gun() == "r":
-                    e.gun.bullet_count = 2
-                    e.gun.bullet_in_gun = True
-                    rockets.append(e.gun)
-                if e.get_gun() == "s":
-                    e.gun.bullet_count = 50
-                    smgs.append(e.gun)
-                e.destroy()
-                enemies.pop(position)
+                    bullet.get_rect().x = bullet_x
+                    bullet.get_rect().y = bullet_y
+                if e.health <= 0:
+                    if e.get_gun() == "p":
+                        e.gun.bullet_count = 20
+                        pistols.append(e.gun)
+                    if e.get_gun() == "r":
+                        e.gun.bullet_count = 2
+                        e.gun.bullet_in_gun = True
+                        rockets.append(e.gun)
+                    if e.get_gun() == "s":
+                        e.gun.bullet_count = 50
+                        smgs.append(e.gun)
+                    e.destroy()
+                    enemies.pop(position)
+        else:
+            for position, p in sorted(enumerate(collected_eggs), reverse=True):
+                p.rect.x = player.get_rect().x + random.randint(-8,8)
+                p.rect.y = player.get_rect().y
+                eggs.append(p)
+                collected_eggs.pop(position)
+            if time - death_last_update > death_cooldown:
+                if player.life < lives:
+                    player.life += 1
+                    return [3, player.life, eggs]
+                else:
+                    return [4]
+            
         #Drawing Shields
         for position, p in sorted(enumerate(shields), reverse = True):
             if p.get_rect().colliderect(player.get_rect()):
@@ -603,71 +638,71 @@ def main(map_loc):
             inven_slot = 2
         if key[pygame.K_4]:
             inven_slot = 3
-        
-        if player.right_facing():
-            player_x = player.get_rect().x + 22
-            player_y = player.get_rect().y + 15
-        else:
-            player_x = player.get_rect().x - 1
-            player_y = player.get_rect().y + 15
-        #Angle Calculation
-        angle = math.atan2(( mpos[1]//2 - (player_y - scroll[1])) , (mpos[0]//2 - (player.get_rect().x - scroll[0])))
-        angle *= -1
-        for tile in tile_rects:
-            for bullet in bullets:
-                bullet_x = bullet.get_rect().x
-                bullet_y = bullet.get_rect().y
-                bullet.get_rect().x += scroll[0]
-                bullet.get_rect().y += scroll[1]
-                if tile.colliderect(bullet.get_rect()):
-                    bullet.alive = False
-                    for x in range(30):
-                        if bullet.get_gun() == "r":
-                            bullets.append(darts.Bullet((bullet_x  + random.randint(-200, 260), bullet_y + random.randint(-200,200)), 30, 30, bullet_img, math.radians(random.randint(0,360)), "p", time, True))
-                            sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
-                        else:
-                            smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
+        if player.alive:
+            if player.right_facing():
+                player_x = player.get_rect().x + 22
+                player_y = player.get_rect().y + 15
+            else:
+                player_x = player.get_rect().x - 1
+                player_y = player.get_rect().y + 15
+            #Angle Calculation
+            angle = math.atan2(( mpos[1]//2 - (player_y - scroll[1])) , (mpos[0]//2 - (player.get_rect().x - scroll[0])))
+            angle *= -1
+            for tile in tile_rects:
+                for bullet in bullets:
+                    bullet_x = bullet.get_rect().x
+                    bullet_y = bullet.get_rect().y
+                    bullet.get_rect().x += scroll[0]
+                    bullet.get_rect().y += scroll[1]
+                    if tile.colliderect(bullet.get_rect()):
+                        bullet.alive = False
+                        for x in range(30):
+                            if bullet.get_gun() == "r":
+                                bullets.append(darts.Bullet((bullet_x  + random.randint(-200, 260), bullet_y + random.randint(-200,200)), 30, 30, bullet_img, math.radians(random.randint(0,360)), "p", time, True))
+                                sparks.append(spark.Spark([bullet_x , bullet_y], math.radians(random.randint(0,360)), random.randint(7,14), (255,255,255), 2, 1))
+                            else:
+                                smokes.append(f.Smoke((bullet_x + scroll[0], bullet_y + scroll[1])))
 
-                bullet.get_rect().x = bullet_x
-                bullet.get_rect().y = bullet_y
-        #Enchanted Blitting
-        enchanted.update((player.get_rect().x, player.get_rect().y + 30))
-        if frog_check:
-            if inventory[inven_slot] == "f":
-                if inventory_items[str(inven_slot)].get_use() == True:
-                    enchanted.draw(time, display, scroll, (0,230,0))
+                    bullet.get_rect().x = bullet_x
+                    bullet.get_rect().y = bullet_y
+            #Enchanted Blitting
+            enchanted.update((player.get_rect().x, player.get_rect().y + 30))
+            if frog_check:
+                if inventory[inven_slot] == "f":
+                    if inventory_items[str(inven_slot)].get_use() == True:
+                        enchanted.draw(time, display, scroll, (0,230,0))
+                    else:
+                        enchanted.draw(time, display, scroll)
                 else:
                     enchanted.draw(time, display, scroll)
-            else:
-                enchanted.draw(time, display, scroll)
-        #Player Blitting
-        if not map_loc == "load.txt":
-            if inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
-                player.move(tile_rects, time, dt, display, scroll, True, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])
-            elif inventory[inven_slot] == "l":
-                player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)], True)     
-            elif inventory[inven_slot] == "f":
-                player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])  
-            else:
-                player.move(tile_rects, time, dt, display, scroll, False, yeagle.facing_direction())
-        else:
-            player.move(tile_rects, time, dt, display, scroll, False, yeagle.facing_direction(), can_move=False)
-        if not map_loc == "load.txt":
-            player.draw(display, scroll)
-        else:
-            if frog_check:
-                player.draw(display, scroll, player_img)
-            else:
-                player.draw(display, scroll, player_load_img)
-            if time - speech_last_update > speech_cooldown:
-                if current_in_speech < len(speech) - 1:
-                    current_in_speech += 1
+            #Player Blitting
+            if not map_loc == "load.txt":
+                if inventory[inven_slot] == "p" or inventory[inven_slot] == "s" or inventory[inven_slot] == "r":
+                    player.move(tile_rects, time, dt, display, scroll, True, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])
+                elif inventory[inven_slot] == "l":
+                    player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)], True)     
+                elif inventory[inven_slot] == "f":
+                    player.move(tile_rects, time, dt, display, scroll, False, inventory_items[str(inven_slot)].facing_direction(), inventory_items[str(inven_slot)])  
                 else:
-                    return 0
-                speech_last_update = time
-            if speech[current_in_speech] == "              You are my TROBBIT":
-                frog_check = True
-            draw_text(speech[current_in_speech], left_inven_font, (84,171,36), 20,140,display )
+                    player.move(tile_rects, time, dt, display, scroll, False, yeagle.facing_direction())
+            else:
+                player.move(tile_rects, time, dt, display, scroll, False, yeagle.facing_direction(), can_move=False)
+            if not map_loc == "load.txt":
+                player.draw(display, scroll)
+            else:
+                if frog_check:
+                    player.draw(display, scroll, player_img)
+                else:
+                    player.draw(display, scroll, player_load_img)
+                if time - speech_last_update > speech_cooldown:
+                    if current_in_speech < len(speech) - 1:
+                        current_in_speech += 1
+                    else:
+                        return [0]
+                    speech_last_update = time
+                if speech[current_in_speech] == "              You are my TROBBIT":
+                    frog_check = True
+                draw_text(speech[current_in_speech], left_inven_font, (84,171,36), 20,140,display )
         #Blitting Items After Blitting The Player
         blit_grass(grasses, display, scroll, player)
         if inventory_items.get(str(inven_slot)) != None:
@@ -700,7 +735,7 @@ def main(map_loc):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                return 2
+                return [2]
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     #Normal Click To Shoot
@@ -743,6 +778,10 @@ def main(map_loc):
                     smg_spray = False
         #Background Particles
         bg_particle_effect.recursive_call(time, display, scroll, dt)
+        left = life_blit_left
+        for x in range(lives - player.life):
+            display.blit(player_head_img, (left, 0))
+            left += 40
         blit_inventory(display, inventory, inven_font, item_dict, inven_slot)
         blit_left_inventory(display, inventory, inven_slot, item_dict, inventory_items, left_inven_font )
         surf = pygame.transform.scale(display, (screen_w, screen_h))
@@ -755,11 +794,18 @@ def game():
     #2 -> Exit
     levels = ["load.txt", "map.txt"]
     current_level = 0
+    player_life = -2
+    eggs = []
     while current_level < len(levels):
-        returned_value = main(levels[current_level])
-        if returned_value == 0:
+        returned_list = main(levels[current_level], player_life, eggs)
+        if returned_list[0] == 0:
             current_level += 1
-        if returned_value == 2:
+        if returned_list[0] == 2:
             break
+        if returned_list[0] == 3:
+            player_life = returned_list[1]
+            eggs = returned_list[2]
+        if returned_list[0] == 4:
+            current_level = 1
 
 game()

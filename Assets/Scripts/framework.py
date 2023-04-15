@@ -7,7 +7,9 @@ class Player():
         self.rect = pygame.Rect(x,y,width,height)
         self.display_x = 0
         self.width = width
+        self.life = 0
         self.height = height
+        self.alive = True
         self.display_y = 0 
         self.moving_left = False
         self.moving_right = False
