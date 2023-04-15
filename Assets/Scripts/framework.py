@@ -248,7 +248,7 @@ class Map():
         for row in data:
             self.map.append(list(row))
     
-    def blit_map(self, window, scroll):
+    def blit_map(self, window, scroll, left_click_img, numbers_img, right_click_img, space_img, wasd_img):
         x = 0
         y = 0 
         tile_rects = []

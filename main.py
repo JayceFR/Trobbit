@@ -169,6 +169,16 @@ def main(map_loc, player_life, eggs_dropped):
     chicken_img.set_colorkey((0,0,0))
     player_head_img = pygame.image.load("./Assets/Sprites/player_head.png").convert_alpha()
     player_head_img.set_colorkey((0,0,0))
+    left_click_img = pygame.image.load("./Assets/Entities/left_click.png").convert_alpha()
+    left_click_img.set_colorkey((255,255,255))
+    numbers_img = pygame.image.load("./Assets/Entities/numbers.png").convert_alpha()
+    numbers_img.set_colorkey((255,255,255))
+    right_click_img = pygame.image.load("./Assets/Entities/right_click.png").convert_alpha()
+    right_click_img.set_colorkey((255,255,255))
+    space_img = pygame.image.load("./Assets/Entities/space.png").convert_alpha()
+    space_img.set_colorkey((255,255,255))
+    wasd_img = pygame.image.load("./Assets/Entities/wasd.png").convert_alpha()
+    wasd_img.set_colorkey((255,255,255))
     #Enemy animations
     enemy_costume = {'1' : [[], []], '2' : [[], []], '3' : [[], []], '4' : [[], []]}
     for x in range(4):
@@ -322,7 +332,7 @@ def main(map_loc, player_life, eggs_dropped):
         #Mouse Settings 
         mpos = pygame.mouse.get_pos()
         #Blitting the Map
-        tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs, egg_locs, player_loc  = map.blit_map(display, scroll)
+        tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs, egg_locs, player_loc  = map.blit_map(display, scroll, left_click_img, numbers_img, right_click_img, space_img, wasd_img)
         #Calculating Scroll
         if player_spawn:
             if map_loc == "load.txt":
@@ -779,6 +789,26 @@ def main(map_loc, player_life, eggs_dropped):
         #Background Particles
         bg_particle_effect.recursive_call(time, display, scroll, dt)
         left = life_blit_left
+        if map_loc == "map.txt":
+            display.blit(wasd_img, (100 - scroll[0], 200 - scroll[1]))
+            display.blit(space_img, (100 - scroll[0] + 4, 218 - scroll[1]))
+            draw_text("E", pick_up_font, (255,174, 201), 250 - scroll[0], 200 - scroll[1], display )
+            display.blit(numbers_img, (300 - scroll[0], 200 - scroll[1]))
+            draw_text("Inventory", pick_up_font, (255,174, 201), 330 - scroll[0], 200 - scroll[1], display )
+            display.blit(left_click_img, (450 - scroll[0], 200 - scroll[1]))
+            draw_text("Shoot", pick_up_font, (255,174, 201), 460 - scroll[0], 200 - scroll[1], display )
+            display.blit(right_click_img, (520 - scroll[0], 200 - scroll[1]))
+            draw_text("Drop", pick_up_font, (255,174, 201), 530 - scroll[0], 200 - scroll[1], display )
+            draw_text("FAB", pick_up_font, (255,174, 201), 290 - scroll[0], 300 - scroll[1], display )
+            draw_text("Shield", pick_up_font, (255,174, 201), 350 - scroll[0], 300 - scroll[1], display )
+            draw_text("Pistol", pick_up_font, (255,174, 201), 420 - scroll[0], 300 - scroll[1], display )
+            draw_text("SMG", pick_up_font, (255,174, 201), 480 - scroll[0], 300 - scroll[1], display )
+            draw_text("Rocket", pick_up_font, (255,174, 201), 550 - scroll[0], 300 - scroll[1], display )
+            draw_text("Collect All The Eggs In Orded To Complete Level", pick_up_font, (255,174, 201), 750 - scroll[0], 200 - scroll[1], display )
+            draw_text("3 Lives For A Level", pick_up_font, (255,174, 201), 810 - scroll[0], 300 - scroll[1], display )
+            draw_text("Exchange weapons with enemies to gain more ammo", pick_up_font, (255,174, 201), 1250 - scroll[0], 200 - scroll[1], display )
+            draw_text("PRO TIP : Wait For Humans To Complete Their Ammo", pick_up_font, (255,174,201), 1150 - scroll[0], 300 - scroll[1], display )
+
         for x in range(lives - player.life):
             display.blit(player_head_img, (left, 0))
             left += 40
@@ -845,7 +875,7 @@ def game():
                         if returned == 2:
                             run = False
                     if trial_collide:
-                        print("Collided")
+                        returned = trial()
         surf = pygame.transform.scale(display, (screen_w, screen_h))
         window.blit(surf, (0, 0))
         pygame.display.flip()
@@ -866,5 +896,23 @@ def start():
             eggs = returned_list[2]
         if returned_list[0] == 4:
             return 
+
+def trial():
+    levels = ["map.txt"]
+    current_level = 0
+    player_life = -2
+    eggs = []
+    while current_level < len(levels):
+        returned_list = main(levels[current_level], player_life, eggs)
+        if returned_list[0] == 0:
+            current_level += 1
+        if returned_list[0] == 2:
+            return 2
+        if returned_list[0] == 3:
+            player_life = returned_list[1]
+            eggs = returned_list[2]
+        if returned_list[0] == 4:
+            return 
+    return 
 
 game()
