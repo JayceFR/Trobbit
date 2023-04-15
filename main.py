@@ -901,7 +901,7 @@ def game():
         pygame.display.flip()
 
 def start():
-    levels = ["level1.txt", "level2.txt"]
+    levels = [ "level2.txt"]
     current_level = 0
     player_life = -2
     eggs = []
