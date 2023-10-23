@@ -340,7 +340,11 @@ def main(map_loc, player_life, eggs_dropped):
         #Mouse Settings 
         mpos = pygame.mouse.get_pos()
         #Blitting the Map
-        tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs, egg_locs, player_loc  = map.blit_map(display, scroll, left_click_img, numbers_img, right_click_img, space_img, wasd_img)
+        #tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs, egg_locs, player_loc  = map.blit_map(display, scroll, left_click_img, numbers_img, right_click_img, space_img, wasd_img)
+        map.blit_map(display, scroll, left_click_img, numbers_img, right_click_img, space_img, wasd_img)
+        tile_rects, grass_loc, pistol_locs, smg_locs, rocket_locs, menemy_locs, qenemy_locs, shield_locs, water_locs, fab_locs, egg_locs, player_loc, tree_loc = map.get_entities()
+        for loc in tree_loc:
+            display.blit(tree_img, (loc[0] - scroll[0] - 90, loc[1] - scroll[1] - 150))
         #Calculating Scroll
         if player_spawn:
             if map_loc == "load.txt":

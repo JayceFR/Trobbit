@@ -237,68 +237,85 @@ class Player():
 
     def right_facing(self):
         return self.facing_right
+
+class Tiles():
+    def __init__(self, loc, img) -> None:
+        self.loc = loc
+        self.img = img
+    
+    def draw(self, display, scroll):
+        display.blit(self.img, (self.loc[0] - scroll[0], self.loc[1] - scroll[1]))
+
 #Map 
 class Map():
     def __init__(self, map_loc, tiles, tree):
         self.map = [] 
-        self.tiles = tiles
+        self.tile_imgs = tiles
         self.tree = tree
         f = open(map_loc, "r")
         data = f.read()
         f.close()
         data = data.split("\n")
+        self.tile_rects = []
+        self.tiles = []
+        self.grass_loc = []
+        self.pistol_loc = []
+        self.smg_loc = []
+        self.rocket_loc = []
+        self.menemy_loc = []
+        self.qenemy_loc = []
+        self.shield_loc = []
+        self.water_loc = []
+        self.fab_loc = []
+        self.egg_loc = []
+        self.player_loc = []
+        self.tree_loc = []
         for row in data:
             self.map.append(list(row))
-    
-    def blit_map(self, window, scroll, left_click_img, numbers_img, right_click_img, space_img, wasd_img):
-        x = 0
-        y = 0 
-        tile_rects = []
-        grass_loc = []
-        pistol_loc = []
-        smg_loc = []
-        rocket_loc = []
-        menemy_loc = []
-        qenemy_loc = []
-        shield_loc = []
-        water_loc = []
-        fab_loc = []
-        egg_loc = []
-        player_loc = []
+        y = 0
         for row in self.map:
             x = 0 
             for element in row:
-                if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q" and element != "e" and element != "x":
-                    window.blit(self.tiles[int(element)-1], (x * 32 - scroll[0], y * 32 - scroll[1]))
+                # if element != "t" and element != "g" and element != "0" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q" and element != "e" and element != "x":
+                #     window.blit(self.tiles[int(element)-1], (x * 32 - scroll[0], y * 32 - scroll[1]))
                 if element == "t":
-                    window.blit(self.tree, (x * 32 - scroll[0] - 90, y * 32 - scroll[1] - 150))
+                    self.tree_loc.append((x*32, y*32))
+                    #window.blit(self.tree, (x * 32 - scroll[0] - 90, y * 32 - scroll[1] - 150))
                 if element == "g":
-                    grass_loc.append((x*32, y*32))
+                    self.grass_loc.append((x*32, y*32))
                 if element == "p":
-                    pistol_loc.append((x*32, y*32))
+                    self.pistol_loc.append((x*32, y*32))
                 if element == "s":
-                    smg_loc.append((x*32,y*32))
+                    self.smg_loc.append((x*32,y*32))
                 if element == "r":
-                    rocket_loc.append((x*32, y*32))
+                    self.rocket_loc.append((x*32, y*32))
                 if element == "l":
-                    shield_loc.append((x*32,y*32))
+                    self.shield_loc.append((x*32,y*32))
                 if element == "e":
-                    egg_loc.append((x*32, y*32))
+                    self.egg_loc.append((x*32, y*32))
                 if element == "w":
-                    water_loc.append((x*32,y*32))
+                    self.water_loc.append((x*32,y*32))
                 if element == "m":
-                    menemy_loc.append((x*32,y*32))
+                    self.menemy_loc.append((x*32,y*32))
                 if element == "q":
-                    qenemy_loc.append((x*32,y*32))
+                    self.qenemy_loc.append((x*32,y*32))
                 if element == "f":
-                    fab_loc.append((x*32,y*32))
+                    self.fab_loc.append((x*32,y*32))
                 if element == "x":
-                    player_loc.append((x*32, y*32))
+                    self.player_loc.append((x*32, y*32))
                 if element != "0" and element != "t" and element != "g" and element != "p" and element != "s" and element != "r" and element != "e" and element != "l" and element != "w" and element != "f" and element != "m" and element != "q" and element != "e" and element != "x":
-                    tile_rects.append(pygame.rect.Rect(x*32,y*32,32,32))
+                    self.tile_rects.append(pygame.rect.Rect(x*32,y*32,32,32))
+                    self.tiles.append(Tiles((x*32,y*32), self.tile_imgs[int(element)-1]))
                 x += 1
             y += 1
-        return tile_rects, grass_loc, pistol_loc, smg_loc, rocket_loc, menemy_loc, qenemy_loc, shield_loc, water_loc, fab_loc, egg_loc, player_loc
+    
+    def get_entities(self):
+        return self.tile_rects, self.grass_loc, self.pistol_loc, self.smg_loc, self.rocket_loc, self.menemy_loc, self.qenemy_loc, self.shield_loc, self.water_loc, self.fab_loc, self.egg_loc, self.player_loc, self.tree_loc
+    
+    def blit_map(self, window, scroll, left_click_img, numbers_img, right_click_img, space_img, wasd_img):
+        for tile in self.tiles:
+            tile.draw(window, scroll)
+        
 
 
 class Glow():
